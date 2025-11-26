@@ -10,10 +10,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 深度 CSS 客製化 (還原 HTML 版風格) ---
+# --- 2. 深度 CSS 客製化 (完美還原截圖風格) ---
 st.markdown("""
     <style>
-    /* 全站字體與背景 */
+    /* 全站字體與背景：淺灰藍色 */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
     
     html, body, [class*="css"] {
@@ -21,10 +21,10 @@ st.markdown("""
     }
     
     .stApp {
-        background-color: #f8fafc; /* 極淺的灰藍色背景 */
+        background-color: #f1f5f9; /* 截圖中的淺灰藍底色 */
     }
     
-    /* 移除頂部預設空白 */
+    /* 移除頂部預設空白，讓 Header 貼頂 */
     .block-container {
         padding-top: 0rem;
         padding-bottom: 2rem;
@@ -36,7 +36,7 @@ st.markdown("""
     /* --- 頂部深藍色 Header --- */
     .header-container {
         background-color: #1e3a8a; /* 元大深藍 */
-        padding: 1.5rem 3rem;
+        padding: 1.8rem 4rem;
         margin-left: -3rem;
         margin-right: -3rem;
         margin-bottom: 2rem;
@@ -47,28 +47,28 @@ st.markdown("""
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
-    /* --- 白色卡片樣式 --- */
+    /* --- 白色卡片樣式 (針對 st.container) --- */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
-        border-radius: 16px;
+        border-radius: 16px; /* 圓角 */
         padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* 輕微浮起陰影 */
         border: 1px solid #e2e8f0;
         margin-bottom: 1.5rem;
     }
     
-    /* --- 標題樣式 (藍色圓圈數字) --- */
+    /* --- 步驟標題 (藍色圓圈數字) --- */
     .step-header {
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         font-weight: 700;
-        color: #0f172a;
+        color: #1e3a8a; /* 深藍字體 */
     }
     
     .step-number {
-        background-color: #2563eb; /* 亮藍色 */
+        background-color: #2563eb; /* 亮藍色圓圈 */
         color: white;
         width: 32px;
         height: 32px;
@@ -77,53 +77,46 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         margin-right: 12px;
-        font-weight: bold;
+        font-weight: 800;
         font-size: 1rem;
         flex-shrink: 0;
     }
 
-    /* --- 檔案上傳區 (模仿虛線框) --- */
+    /* --- 檔案上傳區 (模仿截圖中的大虛線框) --- */
     div[data-testid="stFileUploader"] section {
-        border: 2px dashed #94a3b8;
-        background-color: #f8fafc;
+        border: 2px dashed #94a3b8; /* 灰色虛線 */
+        background-color: #f8fafc;  /* 極淺灰底 */
         border-radius: 12px;
-        padding: 30px;
+        padding: 40px 20px; /* 加大高度 */
         align-items: center;
         justify-content: center;
+        text-align: center;
     }
     
     div[data-testid="stFileUploader"] section:hover {
-        border-color: #2563eb;
+        border-color: #2563eb; /* 滑鼠移過去變藍色 */
         background-color: #eff6ff;
     }
     
-    /* --- 輸入框樣式 (純白底 + 明顯邊框) --- */
-    /* 針對下拉選單容器 */
-    div[data-baseweb="select"] > div {
-        background-color: #ffffff !important; /* 徹底白底 */
-        border: 1px solid #94a3b8 !important; /* 明顯的灰色邊框 */
-        border-radius: 8px !important;
-        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
-        color: #0f172a !important;
+    /* 隱藏上傳按鈕的預設醜邊框，改用文字提示 */
+    div[data-testid="stFileUploader"] small {
+        font-size: 0.9rem;
+        color: #64748b;
     }
     
-    /* 針對日期選擇器容器 */
+    /* --- 輸入框樣式 (純白立體底框) --- */
+    div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
-        background-color: #ffffff !important; /* 徹底白底 */
-        border: 1px solid #94a3b8 !important; /* 明顯的灰色邊框 */
+        background-color: #ffffff !important; 
+        border: 1px solid #cbd5e1 !important;
         border-radius: 8px !important;
-        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+        padding: 4px;
     }
     
-    /* 輸入框內的文字顏色 */
-    div[data-testid="stDateInput"] input {
-        color: #0f172a !important;
-    }
-    
-    /* 輸入框標籤文字 */
     .stMarkdown label, .stDateInput label, .stSelectbox label {
-        font-weight: 700 !important;
-        color: #1e3a8a !important; /* 深藍色字體，更清楚 */
+        font-weight: 600 !important;
+        color: #334155 !important;
         font-size: 0.95rem !important;
         margin-bottom: 0.5rem !important;
     }
@@ -131,15 +124,15 @@ st.markdown("""
     /* --- 按鈕樣式 (底部並排) --- */
     div.stButton > button {
         width: 100%;
-        height: 48px;
+        height: 50px; /* 加高按鈕 */
         border-radius: 8px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 1.05rem;
         border: none;
-        transition: transform 0.1s;
+        transition: all 0.2s;
     }
     
-    /* 複製指令 (深色) */
+    /* 複製指令 (深灰藍) */
     div.stButton > button[kind="secondary"] {
         background-color: #334155;
         color: white;
@@ -152,14 +145,15 @@ st.markdown("""
     div.stButton > button[kind="primary"] {
         background-color: #2563eb;
         color: white;
-        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
     }
     div.stButton > button[kind="primary"]:hover {
         background-color: #1d4ed8;
-        transform: translateY(-1px);
+        transform: translateY(-2px); /* 微浮效果 */
+        box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* 隱藏右上角選單 */
+    /* 隱藏多餘元素 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -171,21 +165,21 @@ st.markdown("""
 st.markdown("""
     <div class="header-container">
         <div style="display:flex; align-items:center;">
-            <div style="background-color:rgba(255,255,255,0.2); padding:8px; border-radius:8px; margin-right:15px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <div style="background-color:rgba(255,255,255,0.2); padding:10px; border-radius:10px; margin-right:15px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <div>
-                <h1 style="margin:0; font-size:1.5rem; font-weight:700; letter-spacing:0.5px;">日股外電報告產生器</h1>
-                <p style="margin:2px 0 0 0; color:#e2e8f0; font-size:0.85rem; opacity:0.9;">元大證券國際金融部專用格式</p>
+                <h1 style="margin:0; font-size:1.6rem; font-weight:700; letter-spacing:0.5px;">日股外電報告產生器</h1>
+                <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:0.9rem;">元大證券國際金融部專用格式</p>
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.0
+            V 6.0 Pro
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 4. 邏輯處理 ---
+# --- 4. 邏輯處理 (API Key & 模型) ---
 api_key = None
 available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
 
@@ -203,12 +197,13 @@ if "GOOGLE_API_KEY" in st.secrets:
     except:
         pass
 
-# --- 5. 介面佈局 ---
+# --- 5. 介面佈局 (左 45% : 右 55%) ---
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
 
 with col_left:
     # === 卡片 1: 上傳 PDF 報告 ===
     with st.container(border=True):
+        # 使用 HTML 渲染帶有圓圈數字的標題
         st.markdown("""
             <div class="step-header">
                 <div class="step-number">1</div>
@@ -216,8 +211,9 @@ with col_left:
             </div>
         """, unsafe_allow_html=True)
         
+        # 上傳元件
         uploaded_files = st.file_uploader(
-            "將 PDF 拖曳至此，或點擊 Browse files", 
+            "點擊選取或將檔案拖曳至此 (支援多檔)", 
             type=["pdf"], 
             accept_multiple_files=True,
         )
@@ -225,7 +221,7 @@ with col_left:
         if uploaded_files:
             st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # === 卡片 2: 設定與 API Key (模型選擇) ===
+    # === 卡片 2: 設定與模型選擇 ===
     with st.container(border=True):
         st.markdown("""
             <div class="step-header">
@@ -237,14 +233,14 @@ with col_left:
         # 報告日期
         report_date = st.date_input("報告日期", datetime.date.today())
         
-        st.write("") # 間隔
+        st.write("") # 增加一點間距
         
-        # 模型選擇 (取代 API Key 輸入)
+        # 模型選擇 (取代原本的 API Key 輸入框位置)
         selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動連結)",
+            "Google Gemini 模型 (自動連結 API)",
             available_models,
             index=0,
-            help="系統已自動連結 Secrets 中的 API Key"
+            help="系統已自動連結 Secrets 中的 API Key，請選擇要使用的模型版本"
         )
         
         if api_key:
@@ -255,13 +251,13 @@ with col_left:
     # === 按鈕區 ===
     c1, c2 = st.columns(2)
     with c1:
-        # 複製指令按鈕 (深色)
+        # 複製指令 (深色按鈕)
         show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
     with c2:
-        # AI 生成按鈕 (亮藍色)
+        # AI 生成 (亮藍色按鈕)
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-# --- 6. 生成邏輯 ---
+# --- 6. 核心生成邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
@@ -342,15 +338,17 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 7. 右側輸出區 (含一鍵複製) ---
+# --- 7. 右側輸出區 (卡片樣式 + 一鍵複製) ---
 with col_right:
     with st.container(border=True):
         st.markdown('<div class="step-header">輸出結果</div>', unsafe_allow_html=True)
         
+        # 情況 A：只顯示指令
         if show_prompt_btn and final_prompt:
             st.info("指令已生成，請點擊右上角複製：")
             st.code(final_prompt, language="text")
 
+        # 情況 B：AI 生成結果
         if generate_btn:
             status_box = st.empty()
             status_box.info(f"🤖 AI 正在撰寫報告 ({selected_model_name})...")
@@ -363,17 +361,18 @@ with col_right:
                 
                 status_box.success("✅ 生成完成！")
                 
-                # 使用 st.code 實現一鍵複製
+                # 使用 st.code 呈現結果，右上角會自動出現複製按鈕
                 st.code(result_text, language="text")
                 
             except Exception as e:
                 status_box.error(f"生成失敗: {str(e)}")
                 st.error("請確認 API Key 是否正確。")
         
+        # 情況 C：等待中 (空白狀態)
         elif not show_prompt_btn:
              st.markdown("""
             <div style="height:550px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; background-color:white;">
-                <p style="font-size:1.1rem; font-weight:500;">等待 PDF 解析與生成...</p>
-                <p style="font-size:0.9rem;">請在左側上傳檔案並按下「AI 直接生成」</p>
+                <p style="font-size:1.2rem; font-weight:500; color:#cbd5e1;">等待 PDF 解析與生成...</p>
+                <p style="font-size:0.9rem; color:#94a3b8; margin-top:10px;">請在左側上傳檔案並按下「AI 直接生成」</p>
             </div>
             """, unsafe_allow_html=True)
