@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 深度 CSS 客製化 (完美還原截圖風格) ---
+# --- 2. 深度 CSS 客製化 (完美還原截圖風格 + 圖示) ---
 st.markdown("""
     <style>
     /* 全站字體與背景：淺灰藍色 */
@@ -82,7 +82,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* --- 檔案上傳區 (模仿截圖中的大虛線框) --- */
+    /* --- 檔案上傳區 (模仿截圖中的大虛線框 + 圖示) --- */
     div[data-testid="stFileUploader"] section {
         border: 2px dashed #94a3b8; /* 灰色虛線 */
         background-color: #f8fafc;  /* 極淺灰底 */
@@ -91,8 +91,22 @@ st.markdown("""
         align-items: center;
         justify-content: center;
         text-align: center;
+        position: relative; /* 為了放圖示 */
     }
     
+    /* 使用 CSS 偽元素加入雲朵箭頭圖示 */
+    div[data-testid="stFileUploader"] section::before {
+        content: '';
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 15px auto;
+        /* 使用 SVG 圖示 */
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%232563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>');
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
     div[data-testid="stFileUploader"] section:hover {
         border-color: #2563eb; /* 滑鼠移過去變藍色 */
         background-color: #eff6ff;
@@ -174,7 +188,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.0 Pro
+            V 6.1 Pro
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -211,9 +225,9 @@ with col_left:
             </div>
         """, unsafe_allow_html=True)
         
-        # 上傳元件
+        # 上傳元件 (文字提示修改為更直觀)
         uploaded_files = st.file_uploader(
-            "點擊選取或將檔案拖曳至此 (支援多檔)", 
+            "將 PDF 拖曳至此框框中，或點擊選取檔案 (支援多檔)", 
             type=["pdf"], 
             accept_multiple_files=True,
         )
@@ -338,7 +352,7 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 7. 右側輸出區 (卡片樣式 + 一鍵複製) ---
+# --- 7. 右側輸出區 (卡片樣式 + 一鍵複製 + 跑步動畫) ---
 with col_right:
     with st.container(border=True):
         st.markdown('<div class="step-header">輸出結果</div>', unsafe_allow_html=True)
@@ -348,10 +362,16 @@ with col_right:
             st.info("指令已生成，請點擊右上角複製：")
             st.code(final_prompt, language="text")
 
-        # 情況 B：AI 生成結果
+        # 情況 B：AI 生成結果 (加入動畫)
         if generate_btn:
+            # 1. 建立一個空的 placeholder
             status_box = st.empty()
-            status_box.info(f"🤖 AI 正在撰寫報告 ({selected_model_name})...")
+            
+            # 2. 顯示跑步動畫與文字
+            with status_box.container():
+                # 使用一個網路上的跑步 GIF (這是一個通用的範例連結)
+                st.image("https://i.gifer.com/ZKZg.gif", width=100)
+                st.info(f"🤖 AI 正在努力奔跑分析中... ({selected_model_name})，請稍候片刻！")
             
             try:
                 genai.configure(api_key=api_key)
@@ -359,7 +379,9 @@ with col_right:
                 response = model.generate_content(final_prompt)
                 result_text = response.text
                 
-                status_box.success("✅ 生成完成！")
+                # 3. 生成完成後，清空 placeholder，顯示結果
+                status_box.empty()
+                st.success("✅ 報告生成完成！")
                 
                 # 使用 st.code 呈現結果，右上角會自動出現複製按鈕
                 st.code(result_text, language="text")
