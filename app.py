@@ -41,7 +41,7 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.15);
     }
     
-    /* 4. 白色卡片容器 (針對 st.container) */
+    /* 4. 白色卡片容器 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: #ffffff;
         border-radius: 12px;
@@ -51,20 +51,35 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* 5. 特別強調：輸入框的白色底框設計 */
+    /* --- 5. 關鍵修改：讓輸入框變成明顯的「白底框」 --- */
+    
+    /* 移除之前包在最外層的灰色背景 */
     div[data-testid="stDateInput"], div[data-testid="stSelectbox"] {
-        background-color: #f8fafc; /* 非常淡的灰底，區分層次 */
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 12px;
+        background-color: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 15px;
     }
     
-    /* 讓輸入框標籤文字明顯一點 */
-    .stMarkdown label, .stDateInput label, .stSelectbox label {
-        font-weight: 600 !important;
+    /* 針對「日期選擇器」與「下拉選單」的內部輸入框進行強化 */
+    div[data-baseweb="input"] > div,  /* 日期輸入框內部 */
+    div[data-baseweb="select"] > div, /* 下拉選單內部 */
+    div[data-testid="stDateInput"] input {
+        background-color: #ffffff !important; /* 強制白底 */
+        border: 1px solid #cbd5e1 !important; /* 明顯的灰色邊框 */
+        border-radius: 8px !important;
         color: #334155 !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; /* 輕微立體感 */
+        padding-top: 2px;
+        padding-bottom: 2px;
+    }
+
+    /* 標籤文字樣式 */
+    .stMarkdown label, .stDateInput label, .stSelectbox label {
+        font-weight: 700 !important;
+        color: #1e3a8a !important; /* 深藍色標題 */
         font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
     }
     
     /* 6. 卡片標題樣式 */
@@ -121,7 +136,7 @@ st.markdown("""
     
     /* 隱藏 Footer */
     footer {visibility: hidden;}
-    header {visibility: hidden;} /* 隱藏 Streamlit 預設右上角選單漢堡 */
+    header {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -180,13 +195,15 @@ with col_left:
     with st.container(border=True):
         st.markdown('<div class="card-header"><span class="number-badge">2</span>設定與模型選擇</div>', unsafe_allow_html=True)
         
-        # 報告日期 (會被 CSS 包成白色底框)
+        # 報告日期
         report_date = st.date_input(
             "報告日期",
             datetime.date.today()
         )
         
-        # 模型選擇 (會被 CSS 包成白色底框)
+        st.write("") # 微調間距
+        
+        # 模型選擇
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動連結 API)",
             available_models,
