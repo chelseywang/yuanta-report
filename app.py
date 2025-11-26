@@ -85,7 +85,7 @@ st.markdown("""
     /* --- 檔案上傳區 (模仿截圖中的大虛線框 + 圖示) --- */
     div[data-testid="stFileUploader"] section {
         border: 2px dashed #94a3b8; /* 灰色虛線 */
-        background-color: #f8fafc;  /* 極淺灰底 */
+        background-color: #ffffff !important;  /* 改為超白底 */
         border-radius: 12px;
         padding: 40px 20px; /* 加大高度 */
         align-items: center;
@@ -109,7 +109,7 @@ st.markdown("""
 
     div[data-testid="stFileUploader"] section:hover {
         border-color: #2563eb; /* 滑鼠移過去變藍色 */
-        background-color: #eff6ff;
+        background-color: #f8fafc; /* 滑鼠移上去時稍微變灰一點點，增加互動感 */
     }
     
     /* 隱藏上傳按鈕的預設醜邊框，改用文字提示 */
@@ -188,7 +188,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.1 Pro
+            V 6.2 Pro
         </div>
     </div>
 """, unsafe_allow_html=True)
