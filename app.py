@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 自訂 CSS (完全還原截圖風格) ---
+# --- 2. 自訂 CSS (修復版面問題) ---
 st.markdown("""
     <style>
     /* 全站背景：淺灰藍色 */
@@ -18,21 +18,11 @@ st.markdown("""
         background-color: #f0f2f6;
     }
     
-    /* 隱藏 Streamlit 預設的 padding，讓 Header 貼頂 */
-    .block-container {
-        padding-top: 0rem;
-        padding-bottom: 0rem;
-        padding-left: 5rem;
-        padding-right: 5rem;
-    }
-    
     /* 頂部藍色導覽列 */
     .header-container {
         background-color: #1a3682; /* 深藍色 */
-        padding: 1rem 2rem;
-        margin-left: -5rem;
-        margin-right: -5rem;
-        margin-bottom: 2rem;
+        padding: 1rem 3rem;
+        margin: -4rem -4rem 1.5rem -4rem; /* 調整 margin 讓它貼頂 */
         color: white;
         display: flex;
         justify_content: space-between;
@@ -40,19 +30,18 @@ st.markdown("""
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
-    /* 卡片容器樣式 */
-    .card {
+    /* --- 關鍵修正：將 st.container(border=True) 變身為白色卡片 --- */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
-        padding: 20px 24px;
         border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 16px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
     }
     
-    /* 卡片標題樣式 (字體縮小，更精緻) */
-    .card-title {
-        font-size: 1rem; /* 調整為較小的適中大小 */
+    /* 卡片標題樣式 */
+    .card-header {
+        font-size: 1rem;
         font-weight: 700;
         color: #1f2937;
         margin-bottom: 1rem;
@@ -60,33 +49,29 @@ st.markdown("""
         align-items: center;
     }
     
-    /* 藍色圓形數字 1, 2 */
+    /* 藍色圓形數字 */
     .number-badge {
         background-color: #2563eb;
         color: white;
-        width: 22px;
-        height: 22px;
+        width: 24px;
+        height: 24px;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.8rem;
-        margin-right: 8px;
+        font-size: 0.85rem;
+        margin-right: 10px;
         font-weight: bold;
     }
     
-    /* 按鈕樣式優化 */
+    /* 按鈕樣式 */
     div.stButton > button {
         width: 100%;
-        border-radius: 6px;
+        border-radius: 8px;
         height: 42px;
         font-weight: 600;
-        font-size: 0.9rem;
         border: none;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
-    
-    /* 主要按鈕 (生成) - 亮藍色 */
     div.stButton > button[kind="primary"] {
         background-color: #2563eb; 
         color: white;
@@ -94,33 +79,17 @@ st.markdown("""
     div.stButton > button[kind="primary"]:hover {
         background-color: #1d4ed8;
     }
-    
-    /* 次要按鈕 (複製) - 深灰藍色 */
     div.stButton > button[kind="secondary"] {
         background-color: #374151;
         color: white;
     }
-    
-    /* 輸入框與選單優化 */
-    div[data-testid="stDateInput"] > div, div[data-testid="stSelectbox"] > div {
-        background-color: #ffffff;
-        border-radius: 6px;
-        border-color: #d1d5db;
-    }
-    
-    /* 標籤文字大小調整 */
+
+    /* 調整輸入框標題大小 (不要太大) */
     .stMarkdown label, .stDateInput label, .stSelectbox label {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #374151;
+        font-size: 0.9rem !important;
     }
-
-    /* 調整選單被選中的項目文字 */
-    div[data-testid="stSelectbox"] div[role="button"] p {
-        font-weight: 500;
-        color: #111827;
-    }
-
+    
+    /* 隱藏 Footer */
     footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
@@ -131,18 +100,17 @@ st.markdown("""
         <div style="display:flex; align-items:center;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:12px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <div>
-                <h2 style="margin:0; color:white; font-size:1.1rem; font-weight:700; line-height:1.2;">日股外電報告產生器</h2>
-                <p style="margin:0; color:#bfdbfe; font-size:0.75rem; font-weight:400;">元大證券國際金融部專用格式</p>
+                <h2 style="margin:0; color:white; font-size:1.2rem; font-weight:700; line-height:1.2;">日股外電報告產生器</h2>
+                <p style="margin:0; color:#bfdbfe; font-size:0.8rem; font-weight:400;">元大證券國際金融部專用格式</p>
             </div>
         </div>
-        <div style="background-color:rgba(255,255,255,0.2); padding:4px 12px; border-radius:4px; font-size:0.75rem; font-weight:500;">
-            V 5.5
+        <div style="background-color:rgba(255,255,255,0.2); padding:4px 12px; border-radius:4px; font-size:0.8rem; font-weight:500;">
+            V 5.6
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-
-# --- 4. 邏輯處理 (API Key & 模型) ---
+# --- 4. 邏輯處理 ---
 api_key = None
 available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"] 
 
@@ -161,61 +129,53 @@ if "GOOGLE_API_KEY" in st.secrets:
         pass 
 
 # --- 5. 介面佈局 ---
-# 依照截圖比例配置
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
 
 with col_left:
     # --- 卡片 1: 上傳 ---
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title"><span class="number-badge">1</span>上傳券商 PDF 報告</div>', unsafe_allow_html=True)
-    
-    uploaded_files = st.file_uploader(
-        "點擊或拖曳 PDF 檔案至此", 
-        type=["pdf"], 
-        accept_multiple_files=True,
-    )
-    if uploaded_files:
-        st.success(f"已讀取 {len(uploaded_files)} 個檔案")
-        
-    st.markdown('</div>', unsafe_allow_html=True)
+    # 使用 st.container(border=True) 替代 HTML div，確保內容在卡片內
+    with st.container(border=True):
+        st.markdown('<div class="card-header"><span class="number-badge">1</span>上傳券商 PDF 報告</div>', unsafe_allow_html=True)
+        uploaded_files = st.file_uploader(
+            "點擊或拖曳 PDF 檔案至此", 
+            type=["pdf"], 
+            accept_multiple_files=True,
+        )
+        if uploaded_files:
+            st.success(f"已讀取 {len(uploaded_files)} 個檔案")
 
     # --- 卡片 2: 設定 ---
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title"><span class="number-badge">2</span>設定與模型選擇</div>', unsafe_allow_html=True)
-    
-    # 報告日期
-    report_date = st.date_input(
-        "報告日期",
-        datetime.date.today()
-    )
-    
-    st.write("") # 微調間距
-    
-    # 模型選擇 (加上明顯的 Label)
-    selected_model_name = st.selectbox(
-        "Google Gemini 模型",
-        available_models,
-        index=0,
-        help="系統已自動連結 Secrets API Key，請在此選擇要使用的模型版本。"
-    )
-    
-    # 提示文字
-    if api_key:
-        st.caption(f"✓ 已連結 API Key，目前選擇: {selected_model_name}")
-    else:
-        st.error("⚠️ 未偵測到 API Key")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+        st.markdown('<div class="card-header"><span class="number-badge">2</span>設定與模型選擇</div>', unsafe_allow_html=True)
+        
+        report_date = st.date_input(
+            "報告日期",
+            datetime.date.today()
+        )
+        
+        st.write("") # 間距
+        
+        # 這裡就是你要的「模型選擇」
+        selected_model_name = st.selectbox(
+            "Google Gemini 模型 (已自動連結 API)",
+            available_models,
+            index=0,
+            help="請選擇生成報告使用的 AI 模型版本"
+        )
+        
+        if api_key:
+            st.caption(f"✓ API Key 狀態正常")
+        else:
+            st.error("⚠️ 未偵測到 Secrets API Key")
 
-    # --- 按鈕區 (並排) ---
+    # --- 按鈕區 ---
     c1, c2 = st.columns(2)
     with c1:
         show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
     with c2:
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-
-# --- 6. 核心生成邏輯 ---
+# --- 6. 生成邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
@@ -298,43 +258,34 @@ if uploaded_files:
 
 # --- 7. 右側輸出區 ---
 with col_right:
-    # 卡片高度設為 min-height，讓它隨螢幕延伸
-    st.markdown('<div class="card" style="min-height: 600px; display:flex; flex-direction:column;">', unsafe_allow_html=True)
-    
-    col_header, col_copy = st.columns([0.8, 0.2])
-    with col_header:
-        st.markdown('<div class="card-title" style="margin-bottom:0;">輸出結果</div>', unsafe_allow_html=True)
-    with col_copy:
-        pass 
-    
-    st.write("") # 空行
-    
-    if show_prompt_btn and final_prompt:
-        st.info("指令已生成，請複製下方內容：")
-        st.code(final_prompt, language="text")
-
-    if generate_btn:
-        status_box = st.empty()
-        status_box.info(f"🤖 AI 正在撰寫報告 ({selected_model_name})...")
+    # 同樣使用 st.container(border=True) 來製作白色卡片背景
+    with st.container(border=True):
+        st.markdown('<div class="card-header" style="margin-bottom:0.5rem;">輸出結果</div>', unsafe_allow_html=True)
         
-        try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(selected_model_name)
-            response = model.generate_content(final_prompt)
-            result_text = response.text
-            
-            status_box.success("✅ 生成完成！")
-            st.text_area("結果", value=result_text, height=500, label_visibility="collapsed")
-            
-        except Exception as e:
-            status_box.error(f"生成失敗: {str(e)}")
-            st.error("請確認 API Key 是否正確。")
-    else:
-        # 空白狀態
-        st.markdown("""
-        <div style="height:100%; min-height:400px; display:flex; align-items:center; justify-content:center; color:#9ca3af;">
-            <p style="font-size:0.9rem;">等待 PDF 解析與生成...</p>
-        </div>
-        """, unsafe_allow_html=True)
+        if show_prompt_btn and final_prompt:
+            st.info("指令已生成，請複製：")
+            st.code(final_prompt, language="text")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        if generate_btn:
+            status_box = st.empty()
+            status_box.info(f"🤖 AI 正在撰寫報告 ({selected_model_name})...")
+            
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(selected_model_name)
+                response = model.generate_content(final_prompt)
+                result_text = response.text
+                
+                status_box.success("✅ 生成完成！")
+                st.text_area("結果", value=result_text, height=600, label_visibility="collapsed")
+                
+            except Exception as e:
+                status_box.error(f"生成失敗: {str(e)}")
+                st.error("請確認 API Key 是否正確。")
+        else:
+             # 增加高度以模擬長條卡片
+            st.markdown("""
+            <div style="height:550px; display:flex; align-items:center; justify-content:center; color:#9ca3af; background-color:white;">
+                <p>等待 PDF 解析與生成...</p>
+            </div>
+            """, unsafe_allow_html=True)
