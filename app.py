@@ -38,15 +38,40 @@ st.markdown("""
 
 # --- 2. 標題區 ---
 st.title("🇯🇵 日股外電報告產生器 (元大證券)")
-st.caption("V5.2 Python Streamlit 版本 | 支援多檔上傳 | 自選模型")
+st.caption("V5.3 Python Streamlit 版本 | 自動偵測可用模型 | 支援多檔上傳")
 
-# --- 3. 處理 API Key ---
+# --- 3. 處理 API Key 與 模型清單自動抓取 ---
+api_key = None
+has_valid_key = False
+available_models = []
+
+# 1. 嘗試取得 Key
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
-    has_valid_key = True
 else:
     api_key = st.text_input("輸入 Google Gemini API Key", type="password")
-    has_valid_key = bool(api_key)
+
+# 2. 如果有 Key，嘗試連線並抓取模型清單
+if api_key:
+    try:
+        genai.configure(api_key=api_key)
+        # 測試列出模型 (這同時也能驗證 Key 是否有效)
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                available_models.append(m.name)
+        
+        # 簡單排序，讓 gemini-1.5 等較新的模型排前面
+        available_models.sort(reverse=True)
+        has_valid_key = True
+        
+    except Exception as e:
+        st.error(f"⚠️ API Key 驗證失敗或連線錯誤: {e}")
+        st.caption("請檢查您的 API Key 是否正確，或是否已在 Google Cloud Console 啟用 Generative Language API。")
+        # 預設後備清單，避免介面壞掉
+        available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
+else:
+    # 沒有 Key 時的預設顯示
+    available_models = ["請先輸入 API Key"]
 
 # --- 4. 介面佈局 ---
 col_left, col_right = st.columns([0.4, 0.6], gap="large")
@@ -70,17 +95,12 @@ with col_left:
         datetime.date.today()
     )
     
-    # 模型選擇
-    model_options = [
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-    ]
-    
+    # 動態模型選擇
     selected_model_name = st.selectbox(
-        "🤖 選擇 AI 模型",
-        model_options,
+        "🤖 選擇 AI 模型 (自動偵測)",
+        available_models,
         index=0,
-        help="Flash 速度最快；Pro 分析能力較強。"
+        help="此清單由系統根據您的 API Key 自動向 Google 查詢可用的模型。"
     )
     
     if uploaded_files:
@@ -91,6 +111,7 @@ with col_left:
     st.write("---")
 
     # --- 按鈕 ---
+    # 只有當有檔案且 API Key 驗證成功時才啟用按鈕
     generate_btn = st.button("✨ AI 直接生成報告", type="primary", disabled=not (uploaded_files and has_valid_key))
     show_prompt = st.checkbox("顯示完整指令 (若需手動複製)")
 
@@ -184,24 +205,21 @@ with col_right:
         st.code(final_prompt, language="text")
 
     if generate_btn:
-        if not api_key:
-            st.error("❌ 找不到 API Key，請檢查 Secrets 設定。")
-        else:
-            status_box = st.empty()
-            status_box.info(f"🤖 正在使用 {selected_model_name} 模型生成中...")
+        status_box = st.empty()
+        status_box.info(f"🤖 正在使用 {selected_model_name} 模型生成中...")
+        
+        try:
+            # genai 已經在上方 configure 過了，這裡直接使用
+            model = genai.GenerativeModel(selected_model_name)
+            response = model.generate_content(final_prompt)
+            result_text = response.text
             
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(selected_model_name)
-                response = model.generate_content(final_prompt)
-                result_text = response.text
-                
-                status_box.success("✅ 生成完成！")
-                st.text_area("生成結果", value=result_text, height=600)
-                
-            except Exception as e:
-                status_box.error(f"生成失敗: {str(e)}")
-                st.error("請確認 API Key 是否正確。")
+            status_box.success("✅ 生成完成！")
+            st.text_area("生成結果", value=result_text, height=600)
+            
+        except Exception as e:
+            status_box.error(f"生成失敗: {str(e)}")
+            st.error("請確認 API Key 權限或網路狀態。")
 
     elif not generate_btn and not show_prompt:
         st.info("👈 請在左側上傳檔案並按下生成按鈕")
