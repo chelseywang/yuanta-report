@@ -51,9 +51,7 @@ st.markdown("""
         margin-bottom: 1rem;
     }
     
-    /* --- 5. 關鍵修改：讓輸入框變成明顯的「白底框」 --- */
-    
-    /* 移除之前包在最外層的灰色背景 */
+    /* --- 5. 輸入框美化 (白底框) --- */
     div[data-testid="stDateInput"], div[data-testid="stSelectbox"] {
         background-color: transparent !important;
         border: none !important;
@@ -61,15 +59,14 @@ st.markdown("""
         margin-bottom: 15px;
     }
     
-    /* 針對「日期選擇器」與「下拉選單」的內部輸入框進行強化 */
-    div[data-baseweb="input"] > div,  /* 日期輸入框內部 */
-    div[data-baseweb="select"] > div, /* 下拉選單內部 */
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="select"] > div,
     div[data-testid="stDateInput"] input {
-        background-color: #ffffff !important; /* 強制白底 */
-        border: 1px solid #cbd5e1 !important; /* 明顯的灰色邊框 */
+        background-color: #ffffff !important; 
+        border: 1px solid #cbd5e1 !important; 
         border-radius: 8px !important;
         color: #334155 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; /* 輕微立體感 */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
         padding-top: 2px;
         padding-bottom: 2px;
     }
@@ -77,12 +74,29 @@ st.markdown("""
     /* 標籤文字樣式 */
     .stMarkdown label, .stDateInput label, .stSelectbox label {
         font-weight: 700 !important;
-        color: #1e3a8a !important; /* 深藍色標題 */
+        color: #1e3a8a !important; 
         font-size: 0.95rem !important;
         margin-bottom: 0.5rem !important;
     }
     
-    /* 6. 卡片標題樣式 */
+    /* --- 6. 關鍵修改：讓上傳區塊超明顯 --- */
+    /* 針對上傳區塊的內部容器 */
+    div[data-testid="stFileUploader"] section {
+        border: 2px dashed #2563eb !important; /* 藍色虛線邊框 */
+        background-color: #eff6ff !important; /* 非常淺的藍色底 */
+        border-radius: 12px !important;
+        padding: 1.5rem !important; /* 加大內距 */
+        text-align: center !important;
+    }
+    
+    /* 讓上傳按鈕稍微大一點 */
+    div[data-testid="stFileUploader"] button {
+        border-color: #2563eb !important;
+        color: #2563eb !important;
+        background-color: white !important;
+    }
+    
+    /* 7. 卡片標題樣式 */
     .card-header {
         font-size: 1.1rem;
         font-weight: 700;
@@ -107,7 +121,7 @@ st.markdown("""
         font-weight: bold;
     }
     
-    /* 7. 按鈕樣式優化 */
+    /* 8. 按鈕樣式優化 */
     div.stButton > button {
         width: 100%;
         border-radius: 8px;
@@ -153,7 +167,7 @@ st.markdown("""
             </div>
         </div>
         <div style="text-align:right;">
-            <span style="background-color:rgba(255,255,255,0.2); padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:500;">V 5.7</span>
+            <span style="background-color:rgba(255,255,255,0.2); padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:500;">V 5.8</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -183,8 +197,11 @@ with col_left:
     # --- 卡片 1: 上傳 ---
     with st.container(border=True):
         st.markdown('<div class="card-header"><span class="number-badge">1</span>上傳券商 PDF 報告</div>', unsafe_allow_html=True)
+        
+        # 這裡的 label 設為空，因為我們在外面有標題了，
+        # 並且改用 help 參數或直接用文字讓使用者知道可以拖曳
         uploaded_files = st.file_uploader(
-            "點擊或拖曳 PDF 檔案至此", 
+            "📂 請點擊此處選取檔案，或直接將 PDF 拖曳至此框框中", 
             type=["pdf"], 
             accept_multiple_files=True,
         )
@@ -327,8 +344,7 @@ with col_right:
                 
                 status_box.success("✅ 生成完成！")
                 
-                # --- 關鍵修改：使用 st.code 替代 st.text_area 以實現一鍵複製 ---
-                # language="text" 讓它顯示為純文字，右上角會有 Copy 按鈕
+                # 使用 st.code 替代 st.text_area 以實現一鍵複製
                 st.code(result_text, language="text")
                 
             except Exception as e:
