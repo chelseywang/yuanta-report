@@ -10,15 +10,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 自訂 CSS (深度客製化版面) ---
+# --- 2. 深度 CSS 客製化 (還原 HTML 版風格) ---
 st.markdown("""
     <style>
-    /* 1. 全站設定：背景淺灰 */
-    .stApp {
-        background-color: #f0f2f6;
+    /* 全站字體與背景 */
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Noto Sans TC', sans-serif;
     }
     
-    /* 2. 移除 Streamlit 預設頂部空白，讓藍色 Header 滿版 */
+    .stApp {
+        background-color: #f8fafc; /* 極淺的灰藍色背景 */
+    }
+    
+    /* 移除頂部預設空白 */
     .block-container {
         padding-top: 0rem;
         padding-bottom: 2rem;
@@ -26,131 +32,120 @@ st.markdown("""
         padding-right: 3rem;
         max-width: 100%;
     }
-    
-    /* 3. 頂部藍色導覽列 (滿版設計) */
+
+    /* --- 頂部深藍色 Header --- */
     .header-container {
-        background-color: #1a3682; /* 深藍色 */
-        padding: 2rem 4rem;
-        margin-left: -3rem;  /* 抵銷 block-container 的 padding */
-        margin-right: -3rem; /* 抵銷 block-container 的 padding */
+        background-color: #1e3a8a; /* 元大深藍 */
+        padding: 1.5rem 3rem;
+        margin-left: -3rem;
+        margin-right: -3rem;
         margin-bottom: 2rem;
         color: white;
         display: flex;
         justify_content: space-between;
         align_items: center;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
-    /* 4. 白色卡片容器 */
+    /* --- 白色卡片樣式 --- */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        background-color: #ffffff;
-        border-radius: 12px;
+        background-color: white;
+        border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e5e7eb;
-        margin-bottom: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1.5rem;
     }
     
-    /* --- 5. 輸入框美化 (白底框) --- */
-    div[data-testid="stDateInput"], div[data-testid="stSelectbox"] {
-        background-color: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin-bottom: 15px;
-    }
-    
-    div[data-baseweb="input"] > div,
-    div[data-baseweb="select"] > div,
-    div[data-testid="stDateInput"] input {
-        background-color: #ffffff !important; 
-        border: 1px solid #cbd5e1 !important; 
-        border-radius: 8px !important;
-        color: #334155 !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-        padding-top: 2px;
-        padding-bottom: 2px;
-    }
-
-    /* 標籤文字樣式 */
-    .stMarkdown label, .stDateInput label, .stSelectbox label {
-        font-weight: 700 !important;
-        color: #1e3a8a !important; 
-        font-size: 0.95rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    
-    /* --- 6. 關鍵修改：讓上傳區塊超明顯 --- */
-    /* 針對上傳區塊的內部容器 */
-    div[data-testid="stFileUploader"] section {
-        border: 2px dashed #2563eb !important; /* 藍色虛線邊框 */
-        background-color: #eff6ff !important; /* 非常淺的藍色底 */
-        border-radius: 12px !important;
-        padding: 1.5rem !important; /* 加大內距 */
-        text-align: center !important;
-    }
-    
-    /* 讓上傳按鈕稍微大一點 */
-    div[data-testid="stFileUploader"] button {
-        border-color: #2563eb !important;
-        color: #2563eb !important;
-        background-color: white !important;
-    }
-    
-    /* 7. 卡片標題樣式 */
-    .card-header {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #1e3a8a;
-        margin-bottom: 1.2rem;
+    /* --- 標題樣式 (藍色圓圈數字) --- */
+    .step-header {
         display: flex;
         align-items: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #0f172a;
     }
     
-    /* 藍色圓形數字 */
-    .number-badge {
-        background-color: #2563eb;
+    .step-number {
+        background-color: #2563eb; /* 亮藍色 */
         color: white;
-        width: 28px;
-        height: 28px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.9rem;
         margin-right: 12px;
         font-weight: bold;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    /* --- 檔案上傳區 (模仿虛線框) --- */
+    div[data-testid="stFileUploader"] section {
+        border: 2px dashed #94a3b8;
+        background-color: #f8fafc;
+        border-radius: 12px;
+        padding: 30px;
+        align-items: center;
+        justify-content: center;
     }
     
-    /* 8. 按鈕樣式優化 */
+    div[data-testid="stFileUploader"] section:hover {
+        border-color: #2563eb;
+        background-color: #eff6ff;
+    }
+    
+    /* --- 輸入框樣式 (日期、選單) --- */
+    div[data-testid="stDateInput"] > div, div[data-testid="stSelectbox"] > div {
+        border-radius: 8px;
+        border-color: #cbd5e1;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    }
+    
+    .stMarkdown label, .stDateInput label, .stSelectbox label {
+        font-weight: 600 !important;
+        color: #334155 !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* --- 按鈕樣式 (底部並排) --- */
     div.stButton > button {
         width: 100%;
-        border-radius: 8px;
         height: 48px;
+        border-radius: 8px;
         font-weight: 600;
         font-size: 1rem;
         border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        transition: all 0.2s;
+        transition: transform 0.1s;
     }
-    div.stButton > button[kind="primary"] {
-        background-color: #2563eb; 
+    
+    /* 複製指令 (深色) */
+    div.stButton > button[kind="secondary"] {
+        background-color: #334155;
         color: white;
+    }
+    div.stButton > button[kind="secondary"]:hover {
+        background-color: #1e293b;
+    }
+    
+    /* AI 生成 (亮藍色) */
+    div.stButton > button[kind="primary"] {
+        background-color: #2563eb;
+        color: white;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
     }
     div.stButton > button[kind="primary"]:hover {
         background-color: #1d4ed8;
         transform: translateY(-1px);
     }
-    div.stButton > button[kind="secondary"] {
-        background-color: #475569;
-        color: white;
-    }
-    div.stButton > button[kind="secondary"]:hover {
-        background-color: #334155;
-    }
     
-    /* 隱藏 Footer */
+    /* 隱藏右上角選單 */
+    #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -158,23 +153,23 @@ st.markdown("""
 st.markdown("""
     <div class="header-container">
         <div style="display:flex; align-items:center;">
-            <div style="background-color:rgba(255,255,255,0.15); padding:10px; border-radius:10px; margin-right:15px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <div style="background-color:rgba(255,255,255,0.2); padding:8px; border-radius:8px; margin-right:15px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             </div>
             <div>
-                <h2 style="margin:0; color:white; font-size:1.4rem; font-weight:700; letter-spacing: 1px;">日股外電報告產生器</h2>
-                <p style="margin:5px 0 0 0; color:#bfdbfe; font-size:0.85rem; font-weight:400;">元大證券國際金融部專用格式</p>
+                <h1 style="margin:0; font-size:1.5rem; font-weight:700; letter-spacing:0.5px;">日股外電報告產生器</h1>
+                <p style="margin:2px 0 0 0; color:#e2e8f0; font-size:0.85rem; opacity:0.9;">元大證券國際金融部專用格式</p>
             </div>
         </div>
-        <div style="text-align:right;">
-            <span style="background-color:rgba(255,255,255,0.2); padding:5px 12px; border-radius:20px; font-size:0.8rem; font-weight:500;">V 5.8</span>
+        <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
+            V 5.9
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 # --- 4. 邏輯處理 ---
 api_key = None
-available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"] 
+available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
 
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
@@ -188,56 +183,64 @@ if "GOOGLE_API_KEY" in st.secrets:
             fetched_models.sort(reverse=True)
             available_models = fetched_models
     except:
-        pass 
+        pass
 
 # --- 5. 介面佈局 ---
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
 
 with col_left:
-    # --- 卡片 1: 上傳 ---
+    # === 卡片 1: 上傳 PDF 報告 ===
     with st.container(border=True):
-        st.markdown('<div class="card-header"><span class="number-badge">1</span>上傳券商 PDF 報告</div>', unsafe_allow_html=True)
+        st.markdown("""
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>上傳券商 PDF 報告</div>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # 這裡的 label 設為空，因為我們在外面有標題了，
-        # 並且改用 help 參數或直接用文字讓使用者知道可以拖曳
         uploaded_files = st.file_uploader(
-            "📂 請點擊此處選取檔案，或直接將 PDF 拖曳至此框框中", 
+            "將 PDF 拖曳至此，或點擊 Browse files", 
             type=["pdf"], 
             accept_multiple_files=True,
         )
+        
         if uploaded_files:
-            st.success(f"已讀取 {len(uploaded_files)} 個檔案")
+            st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # --- 卡片 2: 設定 ---
+    # === 卡片 2: 設定與 API Key (模型選擇) ===
     with st.container(border=True):
-        st.markdown('<div class="card-header"><span class="number-badge">2</span>設定與模型選擇</div>', unsafe_allow_html=True)
+        st.markdown("""
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>設定與模型選擇</div>
+            </div>
+        """, unsafe_allow_html=True)
         
         # 報告日期
-        report_date = st.date_input(
-            "報告日期",
-            datetime.date.today()
-        )
+        report_date = st.date_input("報告日期", datetime.date.today())
         
-        st.write("") # 微調間距
+        st.write("") # 間隔
         
-        # 模型選擇
+        # 模型選擇 (取代 API Key 輸入)
         selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動連結 API)",
+            "Google Gemini 模型 (自動連結)",
             available_models,
             index=0,
-            help="選擇不同的模型可能會影響生成速度與詳細程度"
+            help="系統已自動連結 Secrets 中的 API Key"
         )
         
         if api_key:
-            st.caption(f"✓ API Key 狀態正常")
+            st.caption("✓ API Key 連線正常")
         else:
             st.error("⚠️ 未偵測到 Secrets API Key")
 
-    # --- 按鈕區 ---
+    # === 按鈕區 ===
     c1, c2 = st.columns(2)
     with c1:
+        # 複製指令按鈕 (深色)
         show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
     with c2:
+        # AI 生成按鈕 (亮藍色)
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
 # --- 6. 生成邏輯 ---
@@ -321,17 +324,15 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 7. 右側輸出區 ---
+# --- 7. 右側輸出區 (含一鍵複製) ---
 with col_right:
     with st.container(border=True):
-        st.markdown('<div class="card-header" style="margin-bottom:0.5rem;">輸出結果 (可一鍵複製)</div>', unsafe_allow_html=True)
+        st.markdown('<div class="step-header">輸出結果</div>', unsafe_allow_html=True)
         
-        # 1. 如果有按下「複製完整指令」
         if show_prompt_btn and final_prompt:
-            st.info("指令已生成：")
-            st.code(final_prompt, language="text") # st.code 自帶複製按鈕
+            st.info("指令已生成，請點擊右上角複製：")
+            st.code(final_prompt, language="text")
 
-        # 2. 如果按下「生成」
         if generate_btn:
             status_box = st.empty()
             status_box.info(f"🤖 AI 正在撰寫報告 ({selected_model_name})...")
@@ -344,17 +345,17 @@ with col_right:
                 
                 status_box.success("✅ 生成完成！")
                 
-                # 使用 st.code 替代 st.text_area 以實現一鍵複製
+                # 使用 st.code 實現一鍵複製
                 st.code(result_text, language="text")
                 
             except Exception as e:
                 status_box.error(f"生成失敗: {str(e)}")
                 st.error("請確認 API Key 是否正確。")
         
-        # 3. 預設空狀態
         elif not show_prompt_btn:
              st.markdown("""
-            <div style="height:550px; display:flex; align-items:center; justify-content:center; color:#9ca3af; background-color:white;">
-                <p>等待 PDF 解析與生成...</p>
+            <div style="height:550px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; background-color:white;">
+                <p style="font-size:1.1rem; font-weight:500;">等待 PDF 解析與生成...</p>
+                <p style="font-size:0.9rem;">請在左側上傳檔案並按下「AI 直接生成」</p>
             </div>
             """, unsafe_allow_html=True)
