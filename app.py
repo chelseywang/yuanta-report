@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# 自訂 CSS 讓介面更像你的截圖
+# 自訂 CSS 讓介面更美觀
 st.markdown("""
     <style>
     .main {
@@ -26,23 +26,21 @@ st.markdown("""
         background-color: #ffffff;
         color: #31333F;
     }
-    /* 強調日期選擇區塊 */
-    div[data-testid="stDateInput"] {
+    div[data-testid="stDateInput"], div[data-testid="stSelectbox"] {
         background-color: white;
         padding: 10px;
         border-radius: 8px;
         border: 1px solid #ddd;
+        margin-bottom: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. 側邊欄與標題 ---
+# --- 2. 標題區 ---
 st.title("🇯🇵 日股外電報告產生器 (元大證券)")
-st.caption("V5.0 Python Streamlit 版本 | 支援多檔上傳 | 自動彙整")
+st.caption("V5.2 Python Streamlit 版本 | 支援多檔上傳 | 自選模型")
 
 # --- 3. 處理 API Key ---
-# 優先嘗試從 Streamlit Secrets 讀取 (部署後用這個)
-# 如果讀不到 (例如本機測試)，則顯示輸入框
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
     has_valid_key = True
@@ -50,11 +48,11 @@ else:
     api_key = st.text_input("輸入 Google Gemini API Key", type="password")
     has_valid_key = bool(api_key)
 
-# --- 4. 介面佈局 (左 4 : 右 6) ---
+# --- 4. 介面佈局 ---
 col_left, col_right = st.columns([0.4, 0.6], gap="large")
 
 with col_left:
-    # --- 區塊 A: 上傳檔案 ---
+    # --- 上傳檔案 ---
     st.info("1️⃣ 上傳券商 PDF 報告")
     uploaded_files = st.file_uploader(
         "支援拖曳多個檔案", 
@@ -62,38 +60,45 @@ with col_left:
         accept_multiple_files=True
     )
 
-    st.write("---") # 分隔線
+    st.write("---")
 
-    # --- 區塊 B: 設定 (日期與其他) ---
+    # --- 設定 ---
     st.info("2️⃣ 設定報告參數")
     
-    # 日期選擇器 (做得顯眼一點)
     report_date = st.date_input(
         "📅 選擇報告日期",
         datetime.date.today()
     )
     
-    # 顯示目前上傳狀態
+    # 模型選擇
+    model_options = [
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+    ]
+    
+    selected_model_name = st.selectbox(
+        "🤖 選擇 AI 模型",
+        model_options,
+        index=0,
+        help="Flash 速度最快；Pro 分析能力較強。"
+    )
+    
     if uploaded_files:
         st.success(f"已上傳 {len(uploaded_files)} 份檔案")
     else:
         st.warning("請先上傳檔案")
 
-    st.write("---") # 分隔線
+    st.write("---")
 
-    # --- 區塊 C: 按鈕 ---
-    # 生成按鈕
+    # --- 按鈕 ---
     generate_btn = st.button("✨ AI 直接生成報告", type="primary", disabled=not (uploaded_files and has_valid_key))
-    
-    # 顯示 Prompt 按鈕 (用來讓使用者複製)
     show_prompt = st.checkbox("顯示完整指令 (若需手動複製)")
 
-# --- 5. 核心邏輯處理 ---
+# --- 5. 核心邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
 if uploaded_files:
-    # 解析所有 PDF
     for pdf_file in uploaded_files:
         try:
             reader = PdfReader(pdf_file)
@@ -104,7 +109,6 @@ if uploaded_files:
         except Exception as e:
             st.error(f"檔案 {pdf_file.name} 解析失敗: {e}")
 
-    # 組合 Prompt (你的元大專用模板)
     date_str = report_date.strftime("%Y年%m月%d日")
     
     template = f"""
@@ -171,41 +175,33 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 6. 右側輸出區 ---
+# --- 6. 輸出區 ---
 with col_right:
     st.write("### 📝 輸出結果")
     
-    # 若使用者勾選顯示 Prompt
     if show_prompt and final_prompt:
-        st.info("下方是完整指令，按右上角圖示可直接複製：")
+        st.info("下方是完整指令：")
         st.code(final_prompt, language="text")
 
-    # 處理 AI 生成
     if generate_btn:
         if not api_key:
-            st.error("❌ 找不到 API Key，請檢查設定。")
+            st.error("❌ 找不到 API Key，請檢查 Secrets 設定。")
         else:
             status_box = st.empty()
-            status_box.info("🤖 AI 正在閱讀報告並撰寫中，請稍候...")
+            status_box.info(f"🤖 正在使用 {selected_model_name} 模型生成中...")
             
             try:
-                # 設定 Gemini
                 genai.configure(api_key=api_key)
-                # 使用 gemini-1.5-flash-001 模型 (速度快且便宜)
-                model = genai.GenerativeModel('gemini-1.5-flash-001')
-                
-                # 發送請求
+                model = genai.GenerativeModel(selected_model_name)
                 response = model.generate_content(final_prompt)
                 result_text = response.text
                 
                 status_box.success("✅ 生成完成！")
-                
-                # 顯示結果 (使用 code block 方便複製)
-                st.text_area("生成結果 (可直接編輯或複製)", value=result_text, height=600)
+                st.text_area("生成結果", value=result_text, height=600)
                 
             except Exception as e:
                 status_box.error(f"生成失敗: {str(e)}")
-                st.error("請確認 API Key 是否正確，或網域限制是否影響 (Streamlit 伺服器 IP 會變動，建議 API Key 不要設 IP 限制，改用 Secrets 保護)。")
+                st.error("請確認 API Key 是否正確。")
 
     elif not generate_btn and not show_prompt:
         st.info("👈 請在左側上傳檔案並按下生成按鈕")
