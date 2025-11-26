@@ -2,120 +2,149 @@ import streamlit as st
 import google.generativeai as genai
 from pypdf import PdfReader
 import datetime
-from io import BytesIO
 
 # --- 1. 頁面設定 ---
 st.set_page_config(
-    page_title="元大日股外電報告產生器",
+    page_title="日股外電報告產生器",
     page_icon="🇯🇵",
     layout="wide"
 )
 
-# 自訂 CSS 讓介面更美觀
+# --- 2. 自訂 CSS (打造截圖風格) ---
 st.markdown("""
     <style>
-    .main {
-        background-color: #f8f9fa;
+    /* 全站背景：淺灰 */
+    .stApp {
+        background-color: #f3f4f6;
     }
+    
+    /* 頂部藍色導覽列模擬 */
+    .header-container {
+        background-color: #1e3a8a;
+        padding: 1.5rem 2rem;
+        margin: -6rem -4rem 2rem -4rem; /* 抵銷 Streamlit 預設 padding */
+        color: white;
+        display: flex;
+        justify_content: space-between;
+        align_items: center;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 卡片樣式 */
+    .css-1r6slb0, .stColumn > div > div {
+        border-radius: 12px;
+    }
+    
+    /* 自定義卡片容器 (透過 markdown 插入 div) */
+    .card {
+        background-color: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+    }
+    
+    /* 調整按鈕樣式 */
     .stButton>button {
         width: 100%;
         border-radius: 8px;
         height: 3em;
+        font-weight: bold;
     }
-    .stTextArea textarea {
-        background-color: #ffffff;
-        color: #31333F;
-    }
+    
+    /* 輸入框與選單背景 */
     div[data-testid="stDateInput"], div[data-testid="stSelectbox"] {
         background-color: white;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ddd;
-        margin-bottom: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. 標題區 ---
-st.title("🇯🇵 日股外電報告產生器 (元大證券)")
-st.caption("V5.3 Python Streamlit 版本 | 自動偵測可用模型 | 支援多檔上傳")
+# --- 3. 頂部藍色 Header ---
+st.markdown("""
+    <div class="header-container">
+        <div>
+            <h2 style="margin:0; color:white; font-size:1.5rem; display:inline-block; vertical-align:middle;">📄 日股外電報告產生器</h2>
+            <p style="margin:0; color:#bfdbfe; font-size:0.8rem;">元大證券國際金融部專用格式</p>
+        </div>
+        <div style="background-color:#1d4ed8; padding:5px 15px; border-radius:20px; font-size:0.8rem;">
+            V 5.4 (Auto-Detect)
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
-# --- 3. 處理 API Key 與 模型清單自動抓取 ---
+
+# --- 4. 邏輯處理 (API Key & 模型) ---
 api_key = None
-has_valid_key = False
-available_models = []
+available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"] # 預設清單
 
-# 1. 嘗試取得 Key
+# 嘗試取得 Key
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
-else:
-    api_key = st.text_input("輸入 Google Gemini API Key", type="password")
-
-# 2. 如果有 Key，嘗試連線並抓取模型清單
-if api_key:
+    # 嘗試自動抓取模型清單
     try:
         genai.configure(api_key=api_key)
-        # 測試列出模型 (這同時也能驗證 Key 是否有效)
+        fetched_models = []
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
-                available_models.append(m.name)
-        
-        # 簡單排序，讓 gemini-1.5 等較新的模型排前面
-        available_models.sort(reverse=True)
-        has_valid_key = True
-        
-    except Exception as e:
-        st.error(f"⚠️ API Key 驗證失敗或連線錯誤: {e}")
-        st.caption("請檢查您的 API Key 是否正確，或是否已在 Google Cloud Console 啟用 Generative Language API。")
-        # 預設後備清單，避免介面壞掉
-        available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
-else:
-    # 沒有 Key 時的預設顯示
-    available_models = ["請先輸入 API Key"]
+                fetched_models.append(m.name)
+        if fetched_models:
+            fetched_models.sort(reverse=True)
+            available_models = fetched_models
+    except:
+        pass # 若抓取失敗則使用預設清單
 
-# --- 4. 介面佈局 ---
-col_left, col_right = st.columns([0.4, 0.6], gap="large")
+# --- 5. 介面佈局 (左 4 : 右 6) ---
+col_left, col_right = st.columns([0.4, 0.6], gap="medium")
 
 with col_left:
-    # --- 上傳檔案 ---
-    st.info("1️⃣ 上傳券商 PDF 報告")
+    # --- 卡片 1: 上傳 ---
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("### ❶ 上傳券商 PDF 報告")
     uploaded_files = st.file_uploader(
-        "支援拖曳多個檔案", 
+        "點擊或拖曳 PDF 檔案至此", 
         type=["pdf"], 
-        accept_multiple_files=True
+        accept_multiple_files=True,
+        label_visibility="collapsed"
     )
-
-    st.write("---")
-
-    # --- 設定 ---
-    st.info("2️⃣ 設定報告參數")
-    
-    report_date = st.date_input(
-        "📅 選擇報告日期",
-        datetime.date.today()
-    )
-    
-    # 動態模型選擇
-    selected_model_name = st.selectbox(
-        "🤖 選擇 AI 模型 (自動偵測)",
-        available_models,
-        index=0,
-        help="此清單由系統根據您的 API Key 自動向 Google 查詢可用的模型。"
-    )
-    
     if uploaded_files:
         st.success(f"已上傳 {len(uploaded_files)} 份檔案")
-    else:
-        st.warning("請先上傳檔案")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.write("---")
+    # --- 卡片 2: 設定 (日期 + 模型) ---
+    st.markdown('<div class="card">', unsafe_allow_html=True)
+    st.markdown("### ❷ 設定與模型")
+    
+    st.caption("報告日期")
+    report_date = st.date_input(
+        "報告日期",
+        datetime.date.today(),
+        label_visibility="collapsed"
+    )
+    
+    st.caption("選擇 AI 模型 (取代 API Key)")
+    selected_model_name = st.selectbox(
+        "選擇模型",
+        available_models,
+        index=0,
+        label_visibility="collapsed",
+        help="系統已自動帶入 Secrets 中的 Key，請直接選擇要使用的模型。"
+    )
+    
+    if not api_key:
+        st.error("⚠️ 未偵測到 Secrets Key，請在 Streamlit 後台設定。")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- 按鈕 ---
-    # 只有當有檔案且 API Key 驗證成功時才啟用按鈕
-    generate_btn = st.button("✨ AI 直接生成報告", type="primary", disabled=not (uploaded_files and has_valid_key))
-    show_prompt = st.checkbox("顯示完整指令 (若需手動複製)")
+    # --- 按鈕區 ---
+    col_btn1, col_btn2 = st.columns(2)
+    with col_btn1:
+        show_prompt = st.checkbox("顯示完整指令", value=False)
+    with col_btn2:
+        generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-# --- 5. 核心邏輯 ---
+
+# --- 6. 核心生成邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
@@ -196,30 +225,38 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 6. 輸出區 ---
+# --- 7. 右側輸出區 ---
 with col_right:
-    st.write("### 📝 輸出結果")
+    # 模擬卡片樣式
+    st.markdown('<div class="card" style="min-height: 500px;">', unsafe_allow_html=True)
+    st.markdown("### 📝 輸出結果")
     
     if show_prompt and final_prompt:
-        st.info("下方是完整指令：")
+        st.info("指令預覽：")
         st.code(final_prompt, language="text")
 
     if generate_btn:
         status_box = st.empty()
-        status_box.info(f"🤖 正在使用 {selected_model_name} 模型生成中...")
+        status_box.info(f"🤖 正在使用 {selected_model_name} 模型生成報告，請稍候...")
         
         try:
-            # genai 已經在上方 configure 過了，這裡直接使用
+            genai.configure(api_key=api_key)
             model = genai.GenerativeModel(selected_model_name)
             response = model.generate_content(final_prompt)
             result_text = response.text
             
             status_box.success("✅ 生成完成！")
-            st.text_area("生成結果", value=result_text, height=600)
+            st.text_area("生成結果", value=result_text, height=600, label_visibility="collapsed")
             
         except Exception as e:
             status_box.error(f"生成失敗: {str(e)}")
-            st.error("請確認 API Key 權限或網路狀態。")
+            st.error("請確認 API Key 是否正確。")
+    else:
+        # 空白狀態
+        st.markdown("""
+        <div style="color:#9ca3af; text-align:center; padding-top:100px;">
+            <p>等待 PDF 解析與生成...</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    elif not generate_btn and not show_prompt:
-        st.info("👈 請在左側上傳檔案並按下生成按鈕")
+    st.markdown('</div>', unsafe_allow_html=True)
