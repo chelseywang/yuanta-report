@@ -97,17 +97,35 @@ st.markdown("""
         background-color: #eff6ff;
     }
     
-    /* --- 輸入框樣式 (日期、選單) --- */
-    div[data-testid="stDateInput"] > div, div[data-testid="stSelectbox"] > div {
-        border-radius: 8px;
-        border-color: #cbd5e1;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* --- 輸入框樣式 (純白底 + 明顯邊框) --- */
+    /* 針對下拉選單容器 */
+    div[data-baseweb="select"] > div {
+        background-color: #ffffff !important; /* 徹底白底 */
+        border: 1px solid #94a3b8 !important; /* 明顯的灰色邊框 */
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+        color: #0f172a !important;
     }
     
+    /* 針對日期選擇器容器 */
+    div[data-baseweb="input"] > div {
+        background-color: #ffffff !important; /* 徹底白底 */
+        border: 1px solid #94a3b8 !important; /* 明顯的灰色邊框 */
+        border-radius: 8px !important;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* 輸入框內的文字顏色 */
+    div[data-testid="stDateInput"] input {
+        color: #0f172a !important;
+    }
+    
+    /* 輸入框標籤文字 */
     .stMarkdown label, .stDateInput label, .stSelectbox label {
-        font-weight: 600 !important;
-        color: #334155 !important;
-        font-size: 0.9rem !important;
+        font-weight: 700 !important;
+        color: #1e3a8a !important; /* 深藍色字體，更清楚 */
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
     }
 
     /* --- 按鈕樣式 (底部並排) --- */
@@ -162,7 +180,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 5.9
+            V 6.0
         </div>
     </div>
 """, unsafe_allow_html=True)
