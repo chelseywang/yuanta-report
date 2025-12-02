@@ -10,21 +10,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 深度 CSS 客製化 (含字體調整 & 藍色邊框強化) ---
+# --- 2. 深度 CSS 客製化 ---
 st.markdown("""
     <style>
     /* 全站基礎設定 */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif; /* 全站優先微軟正黑體 */
+        font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif;
     }
     
     .stApp {
         background-color: #f1f5f9;
     }
     
-    /* 移除頂部預設空白 */
     .block-container {
         padding-top: 0rem;
         padding-bottom: 2rem;
@@ -33,7 +32,7 @@ st.markdown("""
         max-width: 100%;
     }
 
-    /* --- 頂部深藍色 Header --- */
+    /* Header */
     .header-container {
         background-color: #1e3a8a;
         padding: 1.8rem 4rem;
@@ -47,7 +46,7 @@ st.markdown("""
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
-    /* --- 白色卡片樣式 --- */
+    /* 卡片樣式 */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
         border-radius: 16px;
@@ -57,7 +56,7 @@ st.markdown("""
         margin-bottom: 1.5rem;
     }
     
-    /* --- 步驟標題 --- */
+    /* 步驟標題 */
     .step-header {
         display: flex;
         align-items: center;
@@ -82,7 +81,7 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* --- 檔案上傳區 (虛線框 + 圖示) --- */
+    /* 檔案上傳區 */
     div[data-testid="stFileUploader"] section {
         border: 2px dashed #94a3b8;
         background-color: #ffffff !important;
@@ -115,9 +114,10 @@ st.markdown("""
         color: #64748b;
     }
     
-    /* --- 輸入框樣式 --- */
+    /* 輸入框樣式 */
     div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] > div {
+    div[data-baseweb="input"] > div,
+    div[data-baseweb="textarea"] > div { /* 增加對 textarea 的支援 */
         background-color: #ffffff !important; 
         border: 1px solid #cbd5e1 !important;
         border-radius: 8px !important;
@@ -125,14 +125,14 @@ st.markdown("""
         padding: 4px;
     }
     
-    .stMarkdown label, .stDateInput label, .stSelectbox label {
+    .stMarkdown label, .stDateInput label, .stSelectbox label, .stTextArea label {
         font-weight: 600 !important;
         color: #334155 !important;
         font-size: 0.95rem !important;
         margin-bottom: 0.5rem !important;
     }
 
-    /* --- 按鈕樣式 --- */
+    /* 按鈕樣式 */
     div.stButton > button {
         width: 100%;
         height: 50px;
@@ -162,9 +162,9 @@ st.markdown("""
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* --- 針對 st.code (輸出結果) 設定字體與藍色邊框 --- */
+    /* 輸出結果區塊 */
     div[data-testid="stCodeBlock"] {
-        border: 2px solid #2563eb !important; /* 明顯藍色邊框 */
+        border: 2px solid #2563eb !important;
         border-radius: 8px !important;
         overflow: hidden !important;
     }
@@ -173,10 +173,9 @@ st.markdown("""
         font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif !important;
         font-size: 12px !important;
         line-height: 1.6 !important;
-        white-space: pre-wrap !important; /* 自動換行 */
+        white-space: pre-wrap !important;
     }
     
-    /* 隱藏 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -184,7 +183,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. 頂部藍色 Header (HTML) ---
+# --- 3. 頂部藍色 Header ---
 st.markdown("""
     <div class="header-container">
         <div style="display:flex; align-items:center;">
@@ -197,14 +196,13 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.8 (Last Spacing)
+            V 6.9 (Editable)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 # --- 4. 邏輯處理 ---
 api_key = None
-# 預設清單
 available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
 
 if "GOOGLE_API_KEY" in st.secrets:
@@ -225,85 +223,13 @@ if "GOOGLE_API_KEY" in st.secrets:
     except Exception as e:
         pass 
 
-# --- 5. 介面佈局 ---
-col_left, col_right = st.columns([0.45, 0.55], gap="large")
-
-with col_left:
-    # === 卡片 1: 上傳 PDF 報告 ===
-    with st.container(border=True):
-        st.markdown("""
-            <div class="step-header">
-                <div class="step-number">1</div>
-                <div>上傳券商 PDF 報告</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        uploaded_files = st.file_uploader(
-            "將 PDF 拖曳至此框框中，或點擊選取檔案 (支援多檔)", 
-            type=["pdf"], 
-            accept_multiple_files=True,
-        )
-        
-        if uploaded_files:
-            st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
-
-    # === 卡片 2: 設定與模型選擇 ===
-    with st.container(border=True):
-        st.markdown("""
-            <div class="step-header">
-                <div class="step-number">2</div>
-                <div>設定與模型選擇</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        report_date = st.date_input("報告日期", datetime.date.today())
-        
-        st.write("") 
-        
-        selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
-            available_models,
-            index=0, 
-            help="系統已自動連結 API 並列出所有可用模型，若遇額度問題請切換其他版本。"
-        )
-        
-        if api_key:
-            st.caption(f"✓ API 連線正常，共偵測到 {len(available_models)} 個模型")
-        else:
-            st.error("⚠️ 未偵測到 Secrets API Key")
-
-    # === 按鈕區 ===
-    c1, c2 = st.columns(2)
-    with c1:
-        show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
-    with c2:
-        generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
-
-# --- 6. 核心生成邏輯 ---
-final_prompt = ""
-extracted_text = ""
-
-if uploaded_files:
-    for pdf_file in uploaded_files:
-        try:
-            reader = PdfReader(pdf_file)
-            file_text = ""
-            for page in reader.pages:
-                file_text += page.extract_text() + "\n"
-            extracted_text += f"\n\n=== 檔案: {pdf_file.name} ===\n{file_text}"
-        except Exception as e:
-            st.error(f"檔案 {pdf_file.name} 解析失敗: {e}")
-
-    date_str = report_date.strftime("%Y年%m月%d日")
-    
-    # --- Template (加入最後一行的空行要求) ---
-    template = f"""
-請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
+# --- 預設 Prompt 模板 (這裡使用 {date} 作為佔位符) ---
+DEFAULT_PROMPT_TEMPLATE = """請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
 請完整依照以下規範輸出，排版格式與空行必須嚴格遵守：
 
 【輸出格式規範】
 1️⃣ 開頭固定：
-早安！{date_str}
+早安！{date}
 日股外電整理 元大證券國金部
 
 (⚠️注意：此處空兩行)
@@ -350,12 +276,103 @@ if uploaded_files:
 (⚠️注意：最後這句免責聲明前也要空兩行)
 
 
-以上資料為元大證券依上手提供研究報告摘譯，僅供內部教育訓練使用。
+以上資料為元大證券依上手提供研究報告摘譯，僅供內部教育訓練使用。"""
+
+# --- 5. 介面佈局 ---
+col_left, col_right = st.columns([0.45, 0.55], gap="large")
+
+with col_left:
+    # === 卡片 1: 上傳 ===
+    with st.container(border=True):
+        st.markdown("""
+            <div class="step-header">
+                <div class="step-number">1</div>
+                <div>上傳券商 PDF 報告</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        uploaded_files = st.file_uploader(
+            "將 PDF 拖曳至此框框中，或點擊選取檔案 (支援多檔)", 
+            type=["pdf"], 
+            accept_multiple_files=True,
+        )
+        
+        if uploaded_files:
+            st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
+
+    # === 卡片 2: 設定 ===
+    with st.container(border=True):
+        st.markdown("""
+            <div class="step-header">
+                <div class="step-number">2</div>
+                <div>設定與模型選擇</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        report_date = st.date_input("報告日期", datetime.date.today())
+        
+        st.write("") 
+        
+        selected_model_name = st.selectbox(
+            "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
+            available_models,
+            index=0, 
+            help="系統已自動連結 API 並列出所有可用模型，若遇額度問題請切換其他版本。"
+        )
+        
+        if api_key:
+            st.caption(f"✓ API 連線正常，共偵測到 {len(available_models)} 個模型")
+        else:
+            st.error("⚠️ 未偵測到 Secrets API Key")
+
+    # === NEW: 卡片 3 (自定義 Prompt) ===
+    with st.container(border=True):
+        # 使用 Expander 把長長的 Prompt 收起來，保持介面整潔
+        with st.expander("✏️ 自定義 Prompt 指令 (進階設定)", expanded=False):
+            st.caption("您可以在此修改 AI 的指令模板。`{date}` 會自動替換為上方選擇的日期。")
+            user_custom_prompt = st.text_area(
+                "Prompt 內容編輯",
+                value=DEFAULT_PROMPT_TEMPLATE,
+                height=300,
+                label_visibility="collapsed"
+            )
+
+    # === 按鈕區 ===
+    c1, c2 = st.columns(2)
+    with c1:
+        show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
+    with c2:
+        generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
+
+# --- 6. 核心生成邏輯 ---
+final_prompt = ""
+extracted_text = ""
+
+if uploaded_files:
+    for pdf_file in uploaded_files:
+        try:
+            reader = PdfReader(pdf_file)
+            file_text = ""
+            for page in reader.pages:
+                file_text += page.extract_text() + "\n"
+            extracted_text += f"\n\n=== 檔案: {pdf_file.name} ===\n{file_text}"
+        except Exception as e:
+            st.error(f"檔案 {pdf_file.name} 解析失敗: {e}")
+
+    date_str = report_date.strftime("%Y年%m月%d日")
+    
+    # --- 組合最終 Prompt ---
+    # 1. 取得使用者(或預設)的指令模板
+    # 2. 將 {date} 替換為實際日期
+    # 3. 在最後面加上 PDF 內容
+    
+    instruction_part = user_custom_prompt.replace("{date}", date_str)
+    
+    final_prompt = f"""{instruction_part}
 
 【以下是 PDF 內容】：
 {extracted_text}
 """
-    final_prompt = template
 
 # --- 7. 右側輸出區 ---
 with col_right:
@@ -381,7 +398,6 @@ with col_right:
                 status_box.empty()
                 st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
                 
-                # st.code 區塊現在會有藍色邊框 (由 CSS 控制)
                 st.code(result_text, language="text")
                 
             except Exception as e:
