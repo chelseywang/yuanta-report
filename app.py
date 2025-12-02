@@ -197,14 +197,14 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.6 (Auto-Detect)
+            V 6.7 (Spacing Fix)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 # --- 4. 邏輯處理 (恢復自動偵測) ---
 api_key = None
-# 預設清單，以防抓取失敗
+# 預設清單
 available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
 
 if "GOOGLE_API_KEY" in st.secrets:
@@ -212,22 +212,18 @@ if "GOOGLE_API_KEY" in st.secrets:
     try:
         genai.configure(api_key=api_key)
         fetched_models = []
-        # --- 關鍵：自動列出所有可用的文字生成模型 ---
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
-                # 移除 'models/' 前綴，讓選單比較乾淨
                 name = m.name.replace("models/", "")
                 fetched_models.append(name)
         
         if fetched_models:
-            # 排序：新模型排前面
             fetched_models.sort(reverse=True)
             available_models = fetched_models
-            # 確保我們最想要的 2.0-flash-exp 也有在裡面 (如果沒被抓到的話)
             if "gemini-2.0-flash-exp" not in available_models:
                 available_models.insert(0, "gemini-2.0-flash-exp")
     except Exception as e:
-        pass # 如果連線失敗，就使用預設清單
+        pass 
 
 # --- 5. 介面佈局 ---
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
@@ -264,7 +260,6 @@ with col_left:
         
         st.write("") 
         
-        # 模型選擇 (修改標題文字)
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
             available_models,
@@ -301,23 +296,23 @@ if uploaded_files:
 
     date_str = report_date.strftime("%Y年%m月%d日")
     
-    # --- Template ---
+    # --- Template (嚴格換行版) ---
     template = f"""
 請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
-請完整依照以下規範輸出：
+請完整依照以下規範輸出，排版格式必須嚴格遵守：
 
 【輸出格式規範】
 1️⃣ 開頭固定：
-早安！{date_str} 
+早安！{date_str}
 日股外電整理 元大證券國金部
 
-(空兩行)
+(此處空兩行)
 
-2️⃣ 個股格式（每檔公司兩段，請注意空格）
+2️⃣ 個股格式（每檔公司兩段，請嚴格遵守空格行數）
 
 🇯🇵[公司代號 公司名稱 (英文名)]
-第一段（150–170字）：整理美系／日系券商的分析摘要... (⚠️注意：這一段文字必須緊接在公司名稱的下一行，中間「不可」有空行)。
-說明產業趨勢、公司展望、次季動能、成長關鍵。不得提及目標價與評級。
+第一段（150–170字）：(⚠️注意：這一段文字必須「緊接」在公司名稱的下一行，中間「不可」有空行)。
+內容整理美系／日系券商的分析摘要，說明產業趨勢、公司展望、次季動能、成長關鍵。不得提及目標價與評級。
 
 (⚠️注意：第一段與第二段之間必須「空一行」)
 
@@ -325,20 +320,31 @@ if uploaded_files:
 第一句一定要寫：「美系／日系券商將目標價（上調／下調／維持）至 OOOO 日圓，評級維持不變。」
 後續補充：券商調整原因、市場關注風險與主軸。
 
-(⚠️注意：不同公司之間請「空兩行」區隔)
+(⚠️注意：不同公司之間請務必「空兩行」區隔)
 
-3️⃣ 範例參考（請嚴格遵守此排版，特別是換行）：
+3️⃣ 範例參考（請完全複製此排版間距）：
 
 🇯🇵7181 Japan Post Insurance (Japan Post Insurance)
-美系券商分析指出， Japan Post Insurance 在新的中期業務計畫中... (緊接著上一行)
+日系券商指出，Japan Post Insurance在新的中期業務計畫中... (緊接上一行，無空行)
+(略...)
+...有望在新中期計畫中更注重股息回報。
+(此處空一行)
+日系券商將目標價從 4,700 日圓上調至 5,000 日圓，評級維持不變。...
+(略...)
+...以及市場狀況急劇惡化對盈利及內含價值的影響。
 
-美系券商將目標價從 4,700 日圓上調至 5,000 日圓... (與上一段空一行)
+
+(此處空兩行)
 
 
 🇯🇵6501 Hitachi (Hitachi)
-美系券商考察 Hitachi Energy 在加拿大 Quebec 的工廠後發現... (緊接著上一行)
-
-美系券商將目標價維持在 5,900 日圓... (與上一段空一行)
+美系券商參訪Hitachi Energy在加拿大魁北克的工廠後... (緊接上一行，無空行)
+(略...)
+...並計劃至2028年3月增加15,000名員工以提升產能。
+(此處空一行)
+美系券商將目標價維持在 5,900 日圓，評級維持不變。...
+(略...)
+...以及中國新建設需求疲軟等。
 
 以上資料為元大證券依上手提供研究報告摘譯，僅供內部教育訓練使用。
 
@@ -350,7 +356,6 @@ if uploaded_files:
 # --- 7. 右側輸出區 (CSS 已強制指定字體為微軟正黑體 12px) ---
 with col_right:
     with st.container(border=True):
-        # 標題修改為提醒文字
         st.markdown('<div class="step-header">輸出結果 (請注意目標價、日期、券商標記是否符合原文)</div>', unsafe_allow_html=True)
         
         if show_prompt_btn and final_prompt:
@@ -370,7 +375,6 @@ with col_right:
                 result_text = response.text
                 
                 status_box.empty()
-                # 成功訊息強調複製位置
                 st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
                 
                 # st.code 區塊現在會有藍色邊框 (由 CSS 控制)
