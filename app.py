@@ -162,8 +162,7 @@ st.markdown("""
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* --- 關鍵修改：針對 st.code (輸出結果) 設定字體與藍色邊框 --- */
-    /* 這會讓結果顯示區出現明顯的藍色外框 */
+    /* --- 針對 st.code (輸出結果) 設定字體與藍色邊框 --- */
     div[data-testid="stCodeBlock"] {
         border: 2px solid #2563eb !important; /* 明顯藍色邊框 */
         border-radius: 8px !important;
@@ -198,30 +197,37 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.5 (Multi-Model)
+            V 6.6 (Auto-Detect)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 4. 邏輯處理 ---
+# --- 4. 邏輯處理 (恢復自動偵測) ---
 api_key = None
-
-# --- 關鍵修改：定義模型清單 (Gemini 2.0 Flash 優先) ---
-# 這樣如果 2.0 爆額度，您可以在網頁上馬上切換成 1.5 Flash
-available_models = [
-    "gemini-2.0-flash-exp", 
-    "gemini-1.5-flash", 
-    "gemini-1.5-pro"
-]
+# 預設清單，以防抓取失敗
+available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
 
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
     try:
         genai.configure(api_key=api_key)
-        # 這裡我們不自動抓取了，直接用上面定義好的清單，比較穩定
-        # 這樣能確保您想用的 2.0 Flash 一定在清單上
-    except:
-        pass
+        fetched_models = []
+        # --- 關鍵：自動列出所有可用的文字生成模型 ---
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                # 移除 'models/' 前綴，讓選單比較乾淨
+                name = m.name.replace("models/", "")
+                fetched_models.append(name)
+        
+        if fetched_models:
+            # 排序：新模型排前面
+            fetched_models.sort(reverse=True)
+            available_models = fetched_models
+            # 確保我們最想要的 2.0-flash-exp 也有在裡面 (如果沒被抓到的話)
+            if "gemini-2.0-flash-exp" not in available_models:
+                available_models.insert(0, "gemini-2.0-flash-exp")
+    except Exception as e:
+        pass # 如果連線失敗，就使用預設清單
 
 # --- 5. 介面佈局 ---
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
@@ -258,16 +264,16 @@ with col_left:
         
         st.write("") 
         
-        # 這裡的選項會使用上面定義的 available_models，預設 index=0 (即 2.0 Flash)
+        # 模型選擇 (自動偵測到的所有模型)
         selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動連結 API)",
+            "Google Gemini 模型 (自動偵測可用清單)",
             available_models,
             index=0, 
-            help="若遇到 429 額度錯誤，請切換至 1.5 Flash 繼續使用"
+            help="系統已自動連結 API 並列出所有可用模型，若遇額度問題請切換其他版本。"
         )
         
         if api_key:
-            st.caption("✓ API Key 連線正常")
+            st.caption(f"✓ API 連線正常，共偵測到 {len(available_models)} 個模型")
         else:
             st.error("⚠️ 未偵測到 Secrets API Key")
 
@@ -278,7 +284,7 @@ with col_left:
     with c2:
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-# --- 6. 核心生成邏輯 (更新 Prompt 格式) ---
+# --- 6. 核心生成邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
