@@ -169,7 +169,6 @@ st.markdown("""
         overflow: hidden !important;
     }
 
-    /* 強制指定 code 區塊內的字體為 微軟正黑體 + 12px */
     code {
         font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif !important;
         font-size: 12px !important;
@@ -198,12 +197,12 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.7 (Spacing Fix)
+            V 6.8 (Last Spacing)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 4. 邏輯處理 (恢復自動偵測) ---
+# --- 4. 邏輯處理 ---
 api_key = None
 # 預設清單
 available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
@@ -280,7 +279,7 @@ with col_left:
     with c2:
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-# --- 6. 核心生成邏輯 (Prompt 嚴格控管空格) ---
+# --- 6. 核心生成邏輯 ---
 final_prompt = ""
 extracted_text = ""
 
@@ -297,7 +296,7 @@ if uploaded_files:
 
     date_str = report_date.strftime("%Y年%m月%d日")
     
-    # --- Template (嚴格換行版) ---
+    # --- Template (加入最後一行的空行要求) ---
     template = f"""
 請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
 請完整依照以下規範輸出，排版格式與空行必須嚴格遵守：
@@ -347,6 +346,10 @@ if uploaded_files:
 (略...)
 ...以及中國新建設需求疲軟等。
 
+
+(⚠️注意：最後這句免責聲明前也要空兩行)
+
+
 以上資料為元大證券依上手提供研究報告摘譯，僅供內部教育訓練使用。
 
 【以下是 PDF 內容】：
@@ -354,7 +357,7 @@ if uploaded_files:
 """
     final_prompt = template
 
-# --- 7. 右側輸出區 (CSS 已強制指定字體為微軟正黑體 12px) ---
+# --- 7. 右側輸出區 ---
 with col_right:
     with st.container(border=True):
         st.markdown('<div class="step-header">輸出結果 (請注意目標價、日期、券商標記是否符合原文)</div>', unsafe_allow_html=True)
@@ -379,7 +382,6 @@ with col_right:
                 st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
                 
                 # st.code 區塊現在會有藍色邊框 (由 CSS 控制)
-                # 字體已經 CSS 強制改為微軟正黑體 12px
                 st.code(result_text, language="text")
                 
             except Exception as e:
