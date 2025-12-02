@@ -10,21 +10,21 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 深度 CSS 客製化 (完美還原截圖風格 + 圖示) ---
+# --- 2. 深度 CSS 客製化 (含字體調整) ---
 st.markdown("""
     <style>
-    /* 全站字體與背景：淺灰藍色 */
+    /* 全站基礎設定 */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Noto Sans TC', sans-serif;
+        font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif; /* 全站優先微軟正黑體 */
     }
     
     .stApp {
-        background-color: #f1f5f9; /* 截圖中的淺灰藍底色 */
+        background-color: #f1f5f9;
     }
     
-    /* 移除頂部預設空白，讓 Header 貼頂 */
+    /* 移除頂部預設空白 */
     .block-container {
         padding-top: 0rem;
         padding-bottom: 2rem;
@@ -35,7 +35,7 @@ st.markdown("""
 
     /* --- 頂部深藍色 Header --- */
     .header-container {
-        background-color: #1e3a8a; /* 元大深藍 */
+        background-color: #1e3a8a;
         padding: 1.8rem 4rem;
         margin-left: -3rem;
         margin-right: -3rem;
@@ -47,28 +47,28 @@ st.markdown("""
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
     
-    /* --- 白色卡片樣式 (針對 st.container) --- */
+    /* --- 白色卡片樣式 --- */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         background-color: white;
-        border-radius: 16px; /* 圓角 */
+        border-radius: 16px;
         padding: 24px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* 輕微浮起陰影 */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         border: 1px solid #e2e8f0;
         margin-bottom: 1.5rem;
     }
     
-    /* --- 步驟標題 (藍色圓圈數字) --- */
+    /* --- 步驟標題 --- */
     .step-header {
         display: flex;
         align-items: center;
         margin-bottom: 1.5rem;
         font-size: 1.15rem;
         font-weight: 700;
-        color: #1e3a8a; /* 深藍字體 */
+        color: #1e3a8a;
     }
     
     .step-number {
-        background-color: #2563eb; /* 亮藍色圓圈 */
+        background-color: #2563eb;
         color: white;
         width: 32px;
         height: 32px;
@@ -82,43 +82,40 @@ st.markdown("""
         flex-shrink: 0;
     }
 
-    /* --- 檔案上傳區 (模仿截圖中的大虛線框 + 圖示) --- */
+    /* --- 檔案上傳區 (虛線框 + 圖示) --- */
     div[data-testid="stFileUploader"] section {
-        border: 2px dashed #94a3b8; /* 灰色虛線 */
-        background-color: #ffffff !important;  /* 改為超白底 */
+        border: 2px dashed #94a3b8;
+        background-color: #ffffff !important;
         border-radius: 12px;
-        padding: 40px 20px; /* 加大高度 */
+        padding: 40px 20px;
         align-items: center;
         justify-content: center;
         text-align: center;
-        position: relative; /* 為了放圖示 */
+        position: relative;
     }
     
-    /* 使用 CSS 偽元素加入雲朵箭頭圖示 */
     div[data-testid="stFileUploader"] section::before {
         content: '';
         display: block;
         width: 64px;
         height: 64px;
         margin: 0 auto 15px auto;
-        /* 使用 SVG 圖示 */
         background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%232563eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>');
         background-repeat: no-repeat;
         background-position: center;
     }
 
     div[data-testid="stFileUploader"] section:hover {
-        border-color: #2563eb; /* 滑鼠移過去變藍色 */
-        background-color: #f8fafc; /* 滑鼠移上去時稍微變灰一點點，增加互動感 */
+        border-color: #2563eb;
+        background-color: #f8fafc;
     }
     
-    /* 隱藏上傳按鈕的預設醜邊框，改用文字提示 */
     div[data-testid="stFileUploader"] small {
         font-size: 0.9rem;
         color: #64748b;
     }
     
-    /* --- 輸入框樣式 (純白立體底框) --- */
+    /* --- 輸入框樣式 --- */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important; 
@@ -135,10 +132,10 @@ st.markdown("""
         margin-bottom: 0.5rem !important;
     }
 
-    /* --- 按鈕樣式 (底部並排) --- */
+    /* --- 按鈕樣式 --- */
     div.stButton > button {
         width: 100%;
-        height: 50px; /* 加高按鈕 */
+        height: 50px;
         border-radius: 8px;
         font-weight: 600;
         font-size: 1.05rem;
@@ -146,7 +143,6 @@ st.markdown("""
         transition: all 0.2s;
     }
     
-    /* 複製指令 (深灰藍) */
     div.stButton > button[kind="secondary"] {
         background-color: #334155;
         color: white;
@@ -155,7 +151,6 @@ st.markdown("""
         background-color: #1e293b;
     }
     
-    /* AI 生成 (亮藍色) */
     div.stButton > button[kind="primary"] {
         background-color: #2563eb;
         color: white;
@@ -163,11 +158,19 @@ st.markdown("""
     }
     div.stButton > button[kind="primary"]:hover {
         background-color: #1d4ed8;
-        transform: translateY(-2px); /* 微浮效果 */
+        transform: translateY(-2px);
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* 隱藏多餘元素 */
+    /* --- 關鍵修改：針對 st.code (輸出結果) 設定字體 --- */
+    code {
+        font-family: 'Microsoft JhengHei', sans-serif !important; /* 強制微軟正黑體 */
+        font-size: 12px !important; /* 強制 12px */
+        line-height: 1.6 !important;
+        white-space: pre-wrap !important; /* 自動換行 */
+    }
+    
+    /* 隱藏 */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -188,12 +191,12 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.2 Pro
+            V 6.3 Final
         </div>
     </div>
 """, unsafe_allow_html=True)
 
-# --- 4. 邏輯處理 (API Key & 模型) ---
+# --- 4. 邏輯處理 ---
 api_key = None
 available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
 
@@ -211,13 +214,12 @@ if "GOOGLE_API_KEY" in st.secrets:
     except:
         pass
 
-# --- 5. 介面佈局 (左 45% : 右 55%) ---
+# --- 5. 介面佈局 ---
 col_left, col_right = st.columns([0.45, 0.55], gap="large")
 
 with col_left:
     # === 卡片 1: 上傳 PDF 報告 ===
     with st.container(border=True):
-        # 使用 HTML 渲染帶有圓圈數字的標題
         st.markdown("""
             <div class="step-header">
                 <div class="step-number">1</div>
@@ -225,7 +227,6 @@ with col_left:
             </div>
         """, unsafe_allow_html=True)
         
-        # 上傳元件 (文字提示修改為更直觀)
         uploaded_files = st.file_uploader(
             "將 PDF 拖曳至此框框中，或點擊選取檔案 (支援多檔)", 
             type=["pdf"], 
@@ -244,17 +245,15 @@ with col_left:
             </div>
         """, unsafe_allow_html=True)
         
-        # 報告日期
         report_date = st.date_input("報告日期", datetime.date.today())
         
-        st.write("") # 增加一點間距
+        st.write("") 
         
-        # 模型選擇 (取代原本的 API Key 輸入框位置)
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動連結 API)",
             available_models,
             index=0,
-            help="系統已自動連結 Secrets 中的 API Key，請選擇要使用的模型版本"
+            help="系統已自動連結 Secrets 中的 API Key"
         )
         
         if api_key:
@@ -265,13 +264,11 @@ with col_left:
     # === 按鈕區 ===
     c1, c2 = st.columns(2)
     with c1:
-        # 複製指令 (深色按鈕)
         show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
     with c2:
-        # AI 生成 (亮藍色按鈕)
         generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
 
-# --- 6. 核心生成邏輯 ---
+# --- 6. 核心生成邏輯 (更新 Prompt 格式) ---
 final_prompt = ""
 extracted_text = ""
 
@@ -288,88 +285,64 @@ if uploaded_files:
 
     date_str = report_date.strftime("%Y年%m月%d日")
     
+    # --- 關鍵修改：更新 Template 以符合您要的間距要求 ---
     template = f"""
 請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
 請完整依照以下規範輸出：
 
 【輸出格式規範】
 1️⃣ 開頭固定：
-早安！{date_str} 日股外電整理 元大證券國金部
+早安！{date_str} 
+日股外電整理 元大證券國金部
 
-2️⃣ 個股格式（每檔公司兩段）
+(空兩行)
+
+2️⃣ 個股格式（每檔公司兩段，請注意空格）
+
 🇯🇵[公司代號 公司名稱 (英文名)]
-第一段（150–170字）：
-整理美系／日系券商的分析摘要，說明
-- 產業趨勢
-- 公司展望
-- 次季動能
-- 成長關鍵
-不得提及目標價與評級。
+第一段（150–170字）：整理美系／日系券商的分析摘要... (⚠️注意：這一段文字必須緊接在公司名稱的下一行，中間「不可」有空行)。
+說明產業趨勢、公司展望、次季動能、成長關鍵。不得提及目標價與評級。
+
+(⚠️注意：第一段與第二段之間必須「空一行」)
 
 第二段（80–100字）：
-第一句一定要寫：
-「美系／日系券商將目標價（上調／下調／維持）至 OOOO 日圓，評級維持不變。」
-後續補充：
-- 券商調整原因（估值、基本面、成本、成長預期）
-- 市場關注風險與主軸。
+第一句一定要寫：「美系／日系券商將目標價（上調／下調／維持）至 OOOO 日圓，評級維持不變。」
+後續補充：券商調整原因、市場關注風險與主軸。
 
-3️⃣ 券商名稱規則
-- 若為美系券商 → 統一寫「美系券商」
-- 若為日系券商 → 統一寫「日系券商」
-不得出現券商名字。
+(⚠️注意：不同公司之間請「空兩行」區隔)
 
-4️⃣ 內容規範
-- 不得出現 PDF 檔名或報告完整標題尾巴
-- 不得出現主觀推薦語氣
-- 數字、年份、日圓金額請保留
-- 如為產業主題報告 → 以「產業分析」方式撰寫（篇幅與公司相同）
-- 空行與段落格式務必如下範例：
+3️⃣ 範例參考（請嚴格遵守此排版，特別是換行）：
 
-【格式範例如下，請完全複製此排版】
+🇯🇵7181 Japan Post Insurance (Japan Post Insurance)
+美系券商分析指出， Japan Post Insurance 在新的中期業務計畫中... (緊接著上一行)
 
-早安！{date_str} 日股外電整理 元大證券國金部
-🇯🇵6098 Recruit Holdings (Recruit Holdings)
+美系券商將目標價從 4,700 日圓上調至 5,000 日圓... (與上一段空一行)
 
-（150–170字的第一段）
 
-（80–100字的第二段）
+🇯🇵6501 Hitachi (Hitachi)
+美系券商考察 Hitachi Energy 在加拿大 Quebec 的工廠後發現... (緊接著上一行)
 
-🇯🇵8984 大和房屋 REIT (Daiwa House REIT)
-
-（第一段）
-
-（第二段）
+美系券商將目標價維持在 5,900 日圓... (與上一段空一行)
 
 以上資料為元大證券依上手提供研究報告摘譯，僅供內部教育訓練使用。
-
-5️⃣ 字數提示
-- 每家公司共 230–260 字
-- 產業報告可略長但同風格
-- 段落之間需空一行（格式務必與範例一致）
 
 【以下是 PDF 內容】：
 {extracted_text}
 """
     final_prompt = template
 
-# --- 7. 右側輸出區 (卡片樣式 + 一鍵複製 + 跑步動畫) ---
+# --- 7. 右側輸出區 (CSS 已強制指定字體為微軟正黑體 12px) ---
 with col_right:
     with st.container(border=True):
         st.markdown('<div class="step-header">輸出結果</div>', unsafe_allow_html=True)
         
-        # 情況 A：只顯示指令
         if show_prompt_btn and final_prompt:
             st.info("指令已生成，請點擊右上角複製：")
             st.code(final_prompt, language="text")
 
-        # 情況 B：AI 生成結果 (加入動畫)
         if generate_btn:
-            # 1. 建立一個空的 placeholder
             status_box = st.empty()
-            
-            # 2. 顯示跑步動畫與文字
             with status_box.container():
-                # 使用一個網路上的跑步 GIF (這是一個通用的範例連結)
                 st.image("https://i.gifer.com/ZKZg.gif", width=100)
                 st.info(f"🤖 AI 正在努力奔跑分析中... ({selected_model_name})，請稍候片刻！")
             
@@ -379,18 +352,16 @@ with col_right:
                 response = model.generate_content(final_prompt)
                 result_text = response.text
                 
-                # 3. 生成完成後，清空 placeholder，顯示結果
                 status_box.empty()
                 st.success("✅ 報告生成完成！")
                 
-                # 使用 st.code 呈現結果，右上角會自動出現複製按鈕
+                # st.code 區塊的字體已被上方的 CSS 強制改為微軟正黑體/12px
                 st.code(result_text, language="text")
                 
             except Exception as e:
                 status_box.error(f"生成失敗: {str(e)}")
                 st.error("請確認 API Key 是否正確。")
         
-        # 情況 C：等待中 (空白狀態)
         elif not show_prompt_btn:
              st.markdown("""
             <div style="height:550px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; background-color:white;">
