@@ -10,7 +10,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- 2. 深度 CSS 客製化 (含字體調整) ---
+# --- 2. 深度 CSS 客製化 (含字體調整 & 藍色邊框強化) ---
 st.markdown("""
     <style>
     /* 全站基礎設定 */
@@ -162,7 +162,14 @@ st.markdown("""
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* --- 關鍵修改：針對 st.code (輸出結果) 設定字體 --- */
+    /* --- 關鍵修改：針對 st.code (輸出結果) 設定字體與藍色邊框 --- */
+    /* 這會讓結果顯示區出現明顯的藍色外框 */
+    div[data-testid="stCodeBlock"] {
+        border: 2px solid #2563eb !important; /* 明顯藍色邊框 */
+        border-radius: 8px !important;
+        overflow: hidden !important;
+    }
+
     code {
         font-family: 'Microsoft JhengHei', sans-serif !important; /* 強制微軟正黑體 */
         font-size: 12px !important; /* 強制 12px */
@@ -191,26 +198,33 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.3 Final
+            V 6.4 (2.0 Flash)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 # --- 4. 邏輯處理 ---
 api_key = None
-available_models = ["models/gemini-1.5-flash", "models/gemini-1.5-pro"]
+# 更新預設模型清單，將 2.0 Flash Exp 放在第一位作為預設
+available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
 
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
     try:
         genai.configure(api_key=api_key)
+        # 我們保留手動定義的 available_models 以確保預設順序是我們想要的
+        # 但如果是全新的 key，可以嘗試抓取 update
         fetched_models = []
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
-                fetched_models.append(m.name)
+                fetched_models.append(m.name.replace("models/", ""))
+        
+        # 簡單邏輯：如果抓到了模型，嘗試保留我們的預設排序邏輯
+        # 這裡為了穩定性，我們優先使用我們定義好的列表，除非 API 有完全不同的東西
         if fetched_models:
-            fetched_models.sort(reverse=True)
-            available_models = fetched_models
+             # 確保我們想要的模型在清單中存在才顯示
+             # 這裡簡化處理：直接顯示我們預設好的推薦清單，因為這是最穩定的
+             pass
     except:
         pass
 
@@ -252,7 +266,7 @@ with col_left:
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動連結 API)",
             available_models,
-            index=0,
+            index=0, # 預設選第一個 (gemini-2.0-flash-exp)
             help="系統已自動連結 Secrets 中的 API Key"
         )
         
@@ -285,7 +299,7 @@ if uploaded_files:
 
     date_str = report_date.strftime("%Y年%m月%d日")
     
-    # --- 關鍵修改：更新 Template 以符合您要的間距要求 ---
+    # --- Template ---
     template = f"""
 請你扮演「元大證券國際金融部研究員」，根據我上傳的 PDF 券商報告（內容附在最後），整理成「日股外電格式」。
 請完整依照以下規範輸出：
@@ -334,7 +348,7 @@ if uploaded_files:
 # --- 7. 右側輸出區 (CSS 已強制指定字體為微軟正黑體 12px) ---
 with col_right:
     with st.container(border=True):
-        st.markdown('<div class="step-header">輸出結果</div>', unsafe_allow_html=True)
+        st.markdown('<div class="step-header">輸出結果 (藍框內為生成內容)</div>', unsafe_allow_html=True)
         
         if show_prompt_btn and final_prompt:
             st.info("指令已生成，請點擊右上角複製：")
@@ -353,9 +367,9 @@ with col_right:
                 result_text = response.text
                 
                 status_box.empty()
-                st.success("✅ 報告生成完成！")
+                st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的圖示進行複製：")
                 
-                # st.code 區塊的字體已被上方的 CSS 強制改為微軟正黑體/12px
+                # st.code 區塊現在會有藍色邊框 (由 CSS 控制)
                 st.code(result_text, language="text")
                 
             except Exception as e:
