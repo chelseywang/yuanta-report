@@ -198,33 +198,28 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.4 (2.0 Flash)
+            V 6.5 (Multi-Model)
         </div>
     </div>
 """, unsafe_allow_html=True)
 
 # --- 4. 邏輯處理 ---
 api_key = None
-# 更新預設模型清單，將 2.0 Flash Exp 放在第一位作為預設
-available_models = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro"]
+
+# --- 關鍵修改：定義模型清單 (Gemini 2.0 Flash 優先) ---
+# 這樣如果 2.0 爆額度，您可以在網頁上馬上切換成 1.5 Flash
+available_models = [
+    "gemini-2.0-flash-exp", 
+    "gemini-1.5-flash", 
+    "gemini-1.5-pro"
+]
 
 if "GOOGLE_API_KEY" in st.secrets:
     api_key = st.secrets["GOOGLE_API_KEY"]
     try:
         genai.configure(api_key=api_key)
-        # 我們保留手動定義的 available_models 以確保預設順序是我們想要的
-        # 但如果是全新的 key，可以嘗試抓取 update
-        fetched_models = []
-        for m in genai.list_models():
-            if 'generateContent' in m.supported_generation_methods:
-                fetched_models.append(m.name.replace("models/", ""))
-        
-        # 簡單邏輯：如果抓到了模型，嘗試保留我們的預設排序邏輯
-        # 這裡為了穩定性，我們優先使用我們定義好的列表，除非 API 有完全不同的東西
-        if fetched_models:
-             # 確保我們想要的模型在清單中存在才顯示
-             # 這裡簡化處理：直接顯示我們預設好的推薦清單，因為這是最穩定的
-             pass
+        # 這裡我們不自動抓取了，直接用上面定義好的清單，比較穩定
+        # 這樣能確保您想用的 2.0 Flash 一定在清單上
     except:
         pass
 
@@ -263,11 +258,12 @@ with col_left:
         
         st.write("") 
         
+        # 這裡的選項會使用上面定義的 available_models，預設 index=0 (即 2.0 Flash)
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動連結 API)",
             available_models,
-            index=0, # 預設選第一個 (gemini-2.0-flash-exp)
-            help="系統已自動連結 Secrets 中的 API Key"
+            index=0, 
+            help="若遇到 429 額度錯誤，請切換至 1.5 Flash 繼續使用"
         )
         
         if api_key:
