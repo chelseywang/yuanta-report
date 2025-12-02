@@ -264,9 +264,9 @@ with col_left:
         
         st.write("") 
         
-        # 模型選擇 (自動偵測到的所有模型)
+        # 模型選擇 (修改標題文字)
         selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動偵測可用清單)",
+            "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
             available_models,
             index=0, 
             help="系統已自動連結 API 並列出所有可用模型，若遇額度問題請切換其他版本。"
@@ -350,7 +350,8 @@ if uploaded_files:
 # --- 7. 右側輸出區 (CSS 已強制指定字體為微軟正黑體 12px) ---
 with col_right:
     with st.container(border=True):
-        st.markdown('<div class="step-header">輸出結果 (藍框內為生成內容)</div>', unsafe_allow_html=True)
+        # 標題修改為提醒文字
+        st.markdown('<div class="step-header">輸出結果 (請注意目標價、日期、券商標記是否符合原文)</div>', unsafe_allow_html=True)
         
         if show_prompt_btn and final_prompt:
             st.info("指令已生成，請點擊右上角複製：")
@@ -369,7 +370,8 @@ with col_right:
                 result_text = response.text
                 
                 status_box.empty()
-                st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的圖示進行複製：")
+                # 成功訊息強調複製位置
+                st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
                 
                 # st.code 區塊現在會有藍色邊框 (由 CSS 控制)
                 st.code(result_text, language="text")
