@@ -114,7 +114,7 @@ st.markdown("""
         color: #64748b;
     }
     
-    /* 輸入框樣式 (統一風格) */
+    /* 輸入框樣式 */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div,
     div[data-baseweb="textarea"] > div { 
@@ -162,37 +162,38 @@ st.markdown("""
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* ✨ V 7.4 強效修正：標題複製框
-       我們使用「!important」強制覆蓋所有 Streamlit 預設值
+    /* ✨ V 7.5 修正：
+       為了在白色的卡片上能看見框框，我們必須用「顏色」把它框出來
     */
     
-    /* 1. 外層容器：加深邊框顏色，確保它是白底 */
     div[data-testid="stCodeBlock"] {
-        background-color: #ffffff !important;
-        border: 2px solid #1e3a8a !important; /* 改成深藍色邊框，保證看得到 */
+        /* 1. 給它一個極淡的灰藍底色，跟純白背景區分 */
+        background-color: #f8fafc !important; 
+        
+        /* 2. 給它一個「深藍色」的粗邊框，這樣絕對看得見 */
+        border: 2px solid #1e3a8a !important; 
+        
         border-radius: 8px !important;
         padding: 10px !important;
         margin-top: 5px !important;
     }
 
-    /* 2. 內部所有元素：強制背景透明（顯示出外層的白底） */
-    div[data-testid="stCodeBlock"] * {
+    div[data-testid="stCodeBlock"] pre {
         background-color: transparent !important;
     }
 
-    /* 3. 文字顏色：強制深色 */
     div[data-testid="stCodeBlock"] code {
-        color: #0f172a !important; 
+        color: #0f172a !important; /* 深色文字 */
+        background-color: transparent !important;
         font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif !important;
-        font-size: 16px !important; /* 字體再加大 */
+        font-size: 16px !important;
         font-weight: 700 !important;
     }
 
-    /* 4. 複製按鈕：確保可見 */
+    /* 確保複製按鈕是深色的 */
     div[data-testid="stCodeBlock"] button {
         color: #1e3a8a !important;
     }
-
     
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -214,7 +215,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 7.4 (強效顯眼版)
+            V 7.5 (藍框顯眼版)
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -318,7 +319,7 @@ with col_left:
         if uploaded_files:
             st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # === 卡片 2: 設定 (含標題複製功能 - 強效顯眼版) ===
+    # === 卡片 2: 設定 (含標題複製功能 - 藍框版) ===
     with st.container(border=True):
         st.markdown("""
             <div class="step-header">
@@ -330,7 +331,7 @@ with col_left:
         # 1. 日期選擇器
         report_date = st.date_input("報告日期", datetime.date.today())
         
-        # --- ✨ NEW: 標題複製區 (深藍框 + 純白底) ---
+        # --- ✨ NEW: 標題複製區 ---
         st.write("")
         st.markdown("**👇 信件標題 (點擊右上角圖示即可複製)**")
         
