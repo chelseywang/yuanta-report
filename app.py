@@ -125,7 +125,7 @@ st.markdown("""
         padding: 4px;
     }
     
-    .stMarkdown label, .stDateInput label, .stSelectbox label, .stTextArea label {
+    .stMarkdown label, .stDateInput label, .stSelectbox label, .stTextArea label, .stTextInput label {
         font-weight: 600 !important;
         color: #334155 !important;
         font-size: 0.95rem !important;
@@ -196,7 +196,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 6.9 (Editable)
+            V 7.0 (Auto-Title)
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -300,7 +300,7 @@ with col_left:
         if uploaded_files:
             st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # === 卡片 2: 設定 ===
+    # === 卡片 2: 設定 (新增標題生成功能) ===
     with st.container(border=True):
         st.markdown("""
             <div class="step-header">
@@ -309,105 +309,23 @@ with col_left:
             </div>
         """, unsafe_allow_html=True)
         
+        # 1. 日期選擇器
         report_date = st.date_input("報告日期", datetime.date.today())
+        
+        # --- ✨ 新增功能：自動標題產生器 ---
+        # 格式化日期為 YYYY年MM月DD日
+        date_str_title = report_date.strftime("%Y年%m月%d日")
+        # 組合標題字串
+        auto_title = f"早安！{date_str_title} 日股外電整理 元大證券國金部"
+        
+        # 顯示可複製的文字框
+        st.text_input(
+            "📧 信件/訊息標題 (已與日期連動，可直接複製)", 
+            value=auto_title,
+            help="這個標題會隨著您上方選擇的日期自動更新。"
+        )
+        # ----------------------------------
         
         st.write("") 
         
-        selected_model_name = st.selectbox(
-            "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
-            available_models,
-            index=0, 
-            help="系統已自動連結 API 並列出所有可用模型，若遇額度問題請切換其他版本。"
-        )
-        
-        if api_key:
-            st.caption(f"✓ API 連線正常，共偵測到 {len(available_models)} 個模型")
-        else:
-            st.error("⚠️ 未偵測到 Secrets API Key")
-
-    # === NEW: 卡片 3 (自定義 Prompt) ===
-    with st.container(border=True):
-        # 使用 Expander 把長長的 Prompt 收起來，保持介面整潔
-        with st.expander("✏️ 自定義 Prompt 指令 (進階設定)", expanded=False):
-            st.caption("您可以在此修改 AI 的指令模板。`{date}` 會自動替換為上方選擇的日期。")
-            user_custom_prompt = st.text_area(
-                "Prompt 內容編輯",
-                value=DEFAULT_PROMPT_TEMPLATE,
-                height=300,
-                label_visibility="collapsed"
-            )
-
-    # === 按鈕區 ===
-    c1, c2 = st.columns(2)
-    with c1:
-        show_prompt_btn = st.button("📋 複製完整指令", type="secondary")
-    with c2:
-        generate_btn = st.button("✨ AI 直接生成", type="primary", disabled=not (uploaded_files and api_key))
-
-# --- 6. 核心生成邏輯 ---
-final_prompt = ""
-extracted_text = ""
-
-if uploaded_files:
-    for pdf_file in uploaded_files:
-        try:
-            reader = PdfReader(pdf_file)
-            file_text = ""
-            for page in reader.pages:
-                file_text += page.extract_text() + "\n"
-            extracted_text += f"\n\n=== 檔案: {pdf_file.name} ===\n{file_text}"
-        except Exception as e:
-            st.error(f"檔案 {pdf_file.name} 解析失敗: {e}")
-
-    date_str = report_date.strftime("%Y年%m月%d日")
-    
-    # --- 組合最終 Prompt ---
-    # 1. 取得使用者(或預設)的指令模板
-    # 2. 將 {date} 替換為實際日期
-    # 3. 在最後面加上 PDF 內容
-    
-    instruction_part = user_custom_prompt.replace("{date}", date_str)
-    
-    final_prompt = f"""{instruction_part}
-
-【以下是 PDF 內容】：
-{extracted_text}
-"""
-
-# --- 7. 右側輸出區 ---
-with col_right:
-    with st.container(border=True):
-        st.markdown('<div class="step-header">輸出結果 (請注意目標價、日期、券商標記是否符合原文)</div>', unsafe_allow_html=True)
-        
-        if show_prompt_btn and final_prompt:
-            st.info("指令已生成，請點擊右上角複製：")
-            st.code(final_prompt, language="text")
-
-        if generate_btn:
-            status_box = st.empty()
-            with status_box.container():
-                st.image("https://i.gifer.com/ZKZg.gif", width=100)
-                st.info(f"🤖 AI 正在努力奔跑分析中... ({selected_model_name})，請稍候片刻！")
-            
-            try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(selected_model_name)
-                response = model.generate_content(final_prompt)
-                result_text = response.text
-                
-                status_box.empty()
-                st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
-                
-                st.code(result_text, language="text")
-                
-            except Exception as e:
-                status_box.error(f"生成失敗: {str(e)}")
-                st.error("請確認 API Key 是否正確。")
-        
-        elif not show_prompt_btn:
-             st.markdown("""
-            <div style="height:550px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#94a3b8; background-color:white;">
-                <p style="font-size:1.2rem; font-weight:500; color:#cbd5e1;">等待 PDF 解析與生成...</p>
-                <p style="font-size:0.9rem; color:#94a3b8; margin-top:10px;">請在左側上傳檔案並按下「AI 直接生成」</p>
-            </div>
-            """, unsafe_allow_html=True)
+        selected
