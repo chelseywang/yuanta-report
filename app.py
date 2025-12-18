@@ -162,32 +162,30 @@ st.markdown("""
         box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.4);
     }
     
-    /* ✨ 關鍵修改：讓 st.code (標題框) 變成白底黑字，跟其他輸入框長一樣
-       移除原本的藍色粗框，改用標準灰線
-    */
+    /* ✨ V7.3 關鍵修改：超級明顯的白底框框 */
     div[data-testid="stCodeBlock"] {
-        background-color: #ffffff !important;  /* 強制白底 */
-        border: 1px solid #cbd5e1 !important;  /* 細灰線 (跟上面日期框一樣) */
+        background-color: #ffffff !important;  /* 強制純白底 */
+        border: 2px solid #94a3b8 !important;  /* 邊框加粗，顏色加深，確保看得到 */
         border-radius: 8px !important;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-        padding: 5px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important; /* 增加陰影，讓它浮出來 */
+        padding: 12px !important; /* 增加內部空間 */
+        margin-top: 5px !important;
     }
     
     /* 修正 code 區塊內的文字與背景顏色 */
     div[data-testid="stCodeBlock"] pre {
-        background-color: #ffffff !important; /* 內部背景也是白色 */
-        border: none !important;
-        padding: 0 !important;
+        background-color: #ffffff !important; /* 內部也是純白 */
     }
     
     div[data-testid="stCodeBlock"] code {
         font-family: 'Microsoft JhengHei', 'Noto Sans TC', sans-serif !important;
-        color: #334155 !important; /* 深灰色字體 */
+        color: #1e293b !important; /* 深黑藍色字體，對比更高 */
         background-color: #ffffff !important;
-        font-size: 14px !important;
+        font-size: 15px !important; /* 字體稍微加大 */
+        font-weight: 500 !important;
     }
 
-    /* 隱藏右上角的語言標籤 (例如 "text")，只留複製按鈕 */
+    /* 隱藏右上角的語言標籤 */
     div[data-testid="stCodeBlock"] button {
         background-color: transparent !important;
         color: #64748b !important;
@@ -214,7 +212,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 7.2 (白底樣式修正版)
+            V 7.3 (高對比白底框)
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -318,7 +316,7 @@ with col_left:
         if uploaded_files:
             st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # === 卡片 2: 設定 (含標題複製功能 - 白底樣式) ===
+    # === 卡片 2: 設定 (含標題複製功能 - 高對比白底框) ===
     with st.container(border=True):
         st.markdown("""
             <div class="step-header">
@@ -330,7 +328,7 @@ with col_left:
         # 1. 日期選擇器
         report_date = st.date_input("報告日期", datetime.date.today())
         
-        # --- ✨ NEW: 標題複製區 (修正為白底樣式) ---
+        # --- ✨ NEW: 標題複製區 (高對比樣式) ---
         st.write("")
         st.markdown("**👇 信件標題 (點擊右上角圖示即可複製)**")
         
@@ -339,7 +337,7 @@ with col_left:
         # 組合標題
         title_text = f"早安！{formatted_date} 日股外電整理 元大證券國金部"
         
-        # 使用 st.code 呈現，但透過上方 CSS 強制改成白底灰框
+        # 使用 st.code 呈現，透過 CSS 強制美化
         st.code(title_text, language="text")
         # -----------------------------------------------
         
