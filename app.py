@@ -196,7 +196,7 @@ st.markdown("""
             </div>
         </div>
         <div style="background-color:rgba(255,255,255,0.15); padding:6px 16px; border-radius:20px; font-size:0.85rem; font-weight:500;">
-            V 7.1 (標題複製增強版)
+            V 7.1 (標題連動版)
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -300,7 +300,7 @@ with col_left:
         if uploaded_files:
             st.success(f"✅ 已成功讀取 {len(uploaded_files)} 份檔案")
 
-    # === 卡片 2: 設定 (含自動標題複製區) ===
+    # === 卡片 2: 設定 (含標題複製功能) ===
     with st.container(border=True):
         st.markdown("""
             <div class="step-header">
@@ -312,21 +312,21 @@ with col_left:
         # 1. 日期選擇器
         report_date = st.date_input("報告日期", datetime.date.today())
         
-        # --- ✨ 新增功能：專用複製框框 ---
+        # --- ✨ NEW: 標題複製區 (這裡是你要求新增的) ---
         st.write("")
-        st.markdown("⬇️ **標題專用複製區 (點選右上角圖示即可複製)**")
+        st.markdown("**👇 信件標題 (點擊右上角圖示即可複製)**")
         
-        # 格式化日期為 YYYY年MM月DD日
-        date_str_title = report_date.strftime("%Y年%m月%d日")
-        auto_title = f"早安！{date_str_title} 日股外電整理 元大證券國金部"
+        # 格式化日期：YYYY年MM月DD日
+        formatted_date = report_date.strftime("%Y年%m月%d日")
+        # 組合標題
+        title_text = f"早安！{formatted_date} 日股外電整理 元大證券國金部"
         
-        # 使用 st.code 呈現，因為它有內建的 "複製按鈕"
-        st.code(auto_title, language="text")
-        # ----------------------------------
+        # 顯示為程式碼區塊 (方便一鍵複製)
+        st.code(title_text, language="text")
+        # -----------------------------------------------
         
         st.write("") 
         
-        # 模型選擇
         selected_model_name = st.selectbox(
             "Google Gemini 模型 (自動偵測可用清單) (手動選擇Gemini-flash-2.5)",
             available_models,
@@ -412,10 +412,6 @@ with col_right:
                 status_box.empty()
                 st.success("✅ 報告生成完成！請點擊下方藍色框框右上角的 📄 圖示進行複製")
                 
-                # 這裡也顯示一次標題方便最後檢查
-                st.caption("標題預覽：")
-                st.code(auto_title, language="text")
-                st.caption("內文：")
                 st.code(result_text, language="text")
                 
             except Exception as e:
